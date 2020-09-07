@@ -12,14 +12,18 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="ua.pp.trushkovsky.ktggauth.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
-
+        android:id="@+id/navigation_timetable"
+        android:name="ua.pp.trushkovsky.ktggauth.ui.timetable.TimetableFragment"
+        android:label="@string/title_timetable"
+        tools:layout="@layout/fragment_timetable" />
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="ua.pp.trushkovsky.ktggauth.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_news"
+        android:name="ua.pp.trushkovsky.ktggauth.ui.news.NewsFragment"
+        android:label="@string/title_news"
+        tools:layout="@layout/fragment_news" />
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="ua.pp.trushkovsky.ktggauth.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

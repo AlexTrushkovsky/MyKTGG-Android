@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">KTGGAuth</string>
     <string name="title_activity_bottom_nav">MainActivity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">Головна</string>
+    <string name="title_news">Новини</string>
+    <string name="title_timetable">Розклад</string>
+    <string name="title_settings">Налаштування</string>
+    <string name="facebook_app_id">1352022775004486</string>
+    <string name="fb_login_protocol_scheme">fb1352022775004486</string>
 </resources>

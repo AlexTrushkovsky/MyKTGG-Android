@@ -12,6 +12,12 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -19,18 +25,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.*
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 import java.util.stream.DoubleStream.builder
 
 class RegActivity : AppCompatActivity() {
     lateinit var mGoogleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 9001
     private lateinit var auth: FirebaseAuth
+    private var callbackManager: CallbackManager? = null
 
     var signUpStatus = false
     var singUp = true
@@ -62,6 +71,7 @@ class RegActivity : AppCompatActivity() {
             .build()
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         auth = Firebase.auth
+        callbackManager = CallbackManager.Factory.create()
 
         registerButton.setOnClickListener {
             regOrLogIn()
@@ -116,7 +126,7 @@ class RegActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        callbackManager?.onActivityResult(requestCode, resultCode, data)
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -134,7 +144,44 @@ class RegActivity : AppCompatActivity() {
     }
 
     private fun signInWithFacebook() {
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile","email"))
+        LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult>{
+            override fun onSuccess(result: LoginResult?) {
+                handleFacebookAccesstoken(result?.accessToken)
+            }
 
+            override fun onCancel() {
+
+            }
+
+            override fun onError(error: FacebookException?) {
+
+            }
+
+        })
+    }
+
+    fun handleFacebookAccesstoken(token: AccessToken?) {
+        var credential = FacebookAuthProvider.getCredential(token?.token!!)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("signInWith", "signInWithCredential:success")
+                    val user = auth.currentUser
+                    val intent = Intent(this, BottomNavActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                } else {
+                    var progress = RegProgressBar
+                    var dialogBuilder = AlertDialog.Builder(this)
+                    progress.visibility = View.VISIBLE
+                    dialogBuilder.setIcon(R.drawable.common_google_signin_btn_icon_dark)
+                    dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                        dialog.dismiss()
+                    })
+                }
+            }
     }
 
     private fun logIn(dialogBuilder: AlertDialog.Builder, progress: ProgressBar) {
