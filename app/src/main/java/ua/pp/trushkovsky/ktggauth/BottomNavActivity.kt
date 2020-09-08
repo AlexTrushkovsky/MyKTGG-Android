@@ -1,10 +1,16 @@
 package ua.pp.trushkovsky.ktggauth
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -25,26 +31,15 @@ class BottomNavActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_news, R.id.navigation_timetable
+                R.id.navigation_home, R.id.navigation_news, R.id.navigation_timetable, R.id.navigation_settings
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+//        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
     }
 
-    override fun onStart() {
-        super.onStart()
-        val logoutButton = logoutButton
-        logoutButton.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            val intent = Intent(this, RegActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
-    }
-
-    private fun verifyUserLoggedIn() {
+    fun verifyUserLoggedIn() {
         Log.d("BottomNav", "verifying login")
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {

@@ -10,7 +10,6 @@
         android:name="ua.pp.trushkovsky.ktggauth.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
-
     <fragment
         android:id="@+id/navigation_timetable"
         android:name="ua.pp.trushkovsky.ktggauth.ui.timetable.TimetableFragment"
