@@ -17,7 +17,7 @@
         tools:layout="@layout/fragment_timetable" />
     <fragment
         android:id="@+id/navigation_news"
-        android:name="ua.pp.trushkovsky.ktggauth.ui.news.NewsFragment"
+        android:name="ua.pp.trushkovsky.ktggauth.ui.news.d.NewsFragment"
         android:label="@string/title_news"
         tools:layout="@layout/fragment_news" />
     <fragment

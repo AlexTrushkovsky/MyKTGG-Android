@@ -1,6 +1,7 @@
 package ua.pp.trushkovsky.ktggauth.ui.home
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,9 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
-import ua.pp.trushkovsky.ktggauth.BottomNavActivity
 import ua.pp.trushkovsky.ktggauth.R
 import ua.pp.trushkovsky.ktggauth.RegActivity
 
@@ -36,6 +35,7 @@ class HomeFragment : Fragment() {
                 Log.d("BottomNav", "user is already logged in")
             }
         }
+
         return root
     }
 }

@@ -11,4 +11,11 @@
     <color name="appLightColor">#FAF9F9</color>
     <color name="appTintColor">#FF7648</color>
     <color name="inactiveIconColor">#9F9FAF</color>
+
+    <color name="colorBackground">#f9f9fa</color>
+    <color name="colorTextSubtitle">#4e4e4e</color>
+    <color name="colorTextTitle">#262626</color>
+
+    <color name="todayButtonGreenTextColor">#4DC591</color>
+    <color name="todayButtonRedTextColor">#C54D4D</color>
 </resources>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".BottomNavActivity">
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="60sp"
+        android:layout_height="143dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/item_lessonStartView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="09:00"
+                android:textColor="@color/colorTextTitle"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.509"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/item_lessonEndView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="80dp"
+                android:text="10:20"
+                android:textColor="@color/inactiveIconColor"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.509"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/item_lessonStartView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+
+    <View
+        android:id="@+id/separatorView"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:background="@color/colorBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/card_view"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view2"
+        android:layout_width="0dp"
+        android:layout_height="145dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:cardBackgroundColor="#4CC591"
+        app:cardCornerRadius="15dp"
+        app:layout_constraintBottom_toBottomOf="@+id/card_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/separatorView"
+        app:layout_constraintTop_toTopOf="@+id/card_view">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/item_lessonName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="10dp"
+                android:text="Предмет"
+                android:textColor="@color/colorBackground"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/item_lessonViewButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/item_teacherView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="викладач"
+                android:textColor="@color/appLightColor"
+                app:layout_constraintStart_toEndOf="@+id/item_teacherImageView"
+                app:layout_constraintTop_toTopOf="@+id/item_teacherImageView"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/item_cabNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="кабінет"
+                android:textColor="@color/appLightColor"
+                app:layout_constraintStart_toEndOf="@+id/item_mapImageView"
+                app:layout_constraintTop_toTopOf="@+id/item_mapImageView"
+                tools:ignore="MissingConstraints" />
+
+            <ImageView
+                android:id="@+id/item_teacherImageView"
+                android:layout_width="20dp"
+                android:layout_height="18dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintStart_toStartOf="@+id/item_mapImageView"
+                app:layout_constraintTop_toBottomOf="@+id/item_mapImageView"
+                app:srcCompat="@drawable/ic_settingstabtaricon"
+                app:tint="@color/appLightColor" />
+
+            <ImageView
+                android:id="@+id/item_mapImageView"
+                android:layout_width="23dp"
+                android:layout_height="19dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintStart_toStartOf="@+id/item_lessonName"
+                app:layout_constraintTop_toBottomOf="@+id/item_lessonName"
+                app:srcCompat="@drawable/ic_map_icon"
+                app:tint="@color/appLightColor" />
+
+            <TextView
+                android:id="@+id/item_lessonViewButton"
+                android:layout_width="13dp"
+                android:layout_height="39dp"
+                android:layout_marginEnd="16dp"
+                android:text=":"
+                android:textAlignment="center"
+                android:textColor="@color/appLightColor"
+                android:textSize="33sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
