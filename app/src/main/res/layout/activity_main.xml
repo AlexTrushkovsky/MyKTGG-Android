@@ -6,14 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#00674F"
+    android:background="@color/appLightColor"
     android:fillViewport="true"
     android:visibility="visible">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_background"
         tools:context=".RegActivity">
 
         <TextView
@@ -107,6 +106,43 @@
             app:layout_constraintStart_toStartOf="@+id/registerButton"
             app:layout_constraintTop_toBottomOf="@+id/registerButton" />
 
+        <ImageButton
+            android:id="@+id/signInWithFacebook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#00FFFFFF"
+            android:tint="#00FFFFFF"
+            app:layout_constraintEnd_toEndOf="@+id/forgotPassRegisterActivity"
+            app:layout_constraintStart_toStartOf="@+id/forgotPassRegisterActivity"
+            app:layout_constraintTop_toBottomOf="@+id/forgotPassRegisterActivity"
+            app:srcCompat="@drawable/facebook" />
+
+        <ImageButton
+            android:id="@+id/signInWithTeams"
+            android:layout_width="64dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="10dp"
+            android:background="#00FFFFFF"
+            android:tint="#00FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/signInWithFacebook"
+            app:layout_constraintStart_toEndOf="@+id/signInWithFacebook"
+            app:layout_constraintTop_toTopOf="@+id/signInWithFacebook"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/teams" />
+
+        <ImageButton
+            android:id="@+id/signInWithGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="#00FFFFFF"
+            android:tint="#00FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/signInWithFacebook"
+            app:layout_constraintEnd_toStartOf="@+id/signInWithFacebook"
+            app:layout_constraintTop_toTopOf="@+id/signInWithFacebook"
+            app:srcCompat="@drawable/google" />
+
         <ProgressBar
             android:id="@+id/RegProgressBar"
             android:layout_width="wrap_content"
@@ -116,30 +152,5 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
-            android:id="@+id/signInWithFacebook"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginRight="25dp"
-            android:background="#00FFFFFF"
-            android:tint="#00FFFFFF"
-            app:layout_constraintEnd_toEndOf="@+id/forgotPassRegisterActivity"
-            app:layout_constraintTop_toBottomOf="@+id/forgotPassRegisterActivity"
-            app:srcCompat="@drawable/facebook" />
-
-        <ImageButton
-            android:id="@+id/signInWithGoogle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginLeft="25dp"
-            android:background="#00FFFFFF"
-            android:tint="#00FFFFFF"
-            app:layout_constraintStart_toStartOf="@+id/forgotPassRegisterActivity"
-            app:layout_constraintTop_toTopOf="@+id/signInWithFacebook"
-            app:srcCompat="@drawable/google" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">KTGGAuth</string>
+    <string name="app_name">Мій КТГГ</string>
     <string name="title_activity_bottom_nav">MainActivity</string>
     <string name="title_home">Головна</string>
     <string name="title_news">Новини</string>
     <string name="title_timetable">Розклад</string>
     <string name="title_settings">Налаштування</string>
+    <string name="title_account_settings">Профіль</string>
     <string name="facebook_app_id">1352022775004486</string>
     <string name="fb_login_protocol_scheme">fb1352022775004486</string>
     <!-- Preference Titles -->
@@ -21,4 +22,5 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="exit_text">Вийти</string>
 </resources>

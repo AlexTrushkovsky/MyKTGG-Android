@@ -6,11 +6,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:paddingTop="20dp"
     android:background="@color/backgroundGrayColor"
-    tools:context="ua.pp.trushkovsky.ktggauth.BottomNavActivity">
+    tools:context="ua.pp.trushkovsky.MyKTGG.BottomNavActivity">
 
     <View
+        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/round_white"
@@ -24,7 +25,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="19dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:fillViewport="true"
+        android:gravity="center"
         app:deselection="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dayNumView"
         app:longPress="false"
         app:multiSelection="false" />
@@ -81,21 +88,37 @@
         app:layout_constraintStart_toStartOf="@+id/weekDayView"
         app:layout_constraintTop_toBottomOf="@+id/weekDayView" />
 
+    <ImageView
+        android:id="@+id/noLessonImage"
+        android:layout_width="0dp"
+        android:layout_height="318dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/timetableSwipeRefresh"
+        app:srcCompat="@drawable/timetable_nolessons_image" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/timetableSwipeRefresh"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datePickerView"
-        android:layout_height="0dp"
-        android:layout_width="0dp">
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_alignParentBottom="true"
-        tools:itemCount="17"
-        tools:listitem="@layout/timetable_item_layout" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/datePickerView"
+        app:layout_constraintVertical_bias="0.0">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_main_recycler"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_alignParentBottom="true"
+            tools:listitem="@layout/timetable_item_layout" />
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

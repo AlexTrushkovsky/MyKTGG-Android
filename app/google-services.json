@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:553926416029:android:035ad1069d0c82f7eae674",
+        "mobilesdk_app_id": "1:553926416029:android:cad8ade359f31ed5eae674",
         "android_client_info": {
-          "package_name": "ua.pp.trushkovsky.ktggauth"
+          "package_name": "ua.pp.trushkovsky.MyKTGG"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "553926416029-bpikd9dt07fjgd36scj3un4aujboj0ot.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ua.pp.trushkovsky.MyKTGG",
+            "certificate_hash": "f1c48917b3900f4b78e1526cdd1d707408a37fe5"
+          }
+        },
         {
           "client_id": "553926416029-eju1vaqtuovd2su4oeuqgn8hous6cs7i.apps.googleusercontent.com",
           "client_type": 3
