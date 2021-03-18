@@ -2,5 +2,40 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/01. Среда разработки Xcode. Работа с Git/HelloWorldApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/01. Среда разработки Xcode. Работа с Git/StackViewApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/02. UIKit/HW 1/Task 1" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/02. UIKit/HW 1/TrafficLight" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/02. UIKit/UIKitApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/03. Контроль и приведение типов/HW 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/03. Контроль и приведение типов/NavigationApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/04. Personality Quiz - персонализированный опросник/Personal Quiz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/05. Personality Quiz - персонализированный опросник. Часть 2/HW/HW4_2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/05. Personality Quiz - персонализированный опросник. Часть 2/Personal Quiz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/06. UITableView/HW/LoginApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/06. UITableView/HW/LoginApp 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/06. UITableView/TrackListApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/07. Протоколы/HW/Contacts" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/07. Протоколы/HW/PersonsListApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/08. Анатомия приложения. Архитектура MVC/HW 7/ColorizedApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/08. Анатомия приложения. Архитектура MVC/LifeCycleViewController" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/10. Сетевые запросы/HomeWork/Animations-Fun" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/10. Сетевые запросы/HomeWork/SpringApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/11. URLSession vs Alamofire/HW/KHLTeams" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/11. URLSession vs Alamofire/HW/simpsonsApi-HW_10-" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/12. User Defaults. PlistFile. Image Caching/Home Work/MovieInfoAlamofire" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/12. User Defaults. PlistFile. Image Caching/Home Work/Weather" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/12. User Defaults. PlistFile. Image Caching/UserDefaultsApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/13. CoreData/HW/MovieInfoUrlSession" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/13. CoreData/HW/SpacediaNews" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/II уровень/14. ToDo List с использованием Realm/HW/ToDoListWithCoreData" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/4. Архитектурные паттерны в iOS/MV(X)Petterns" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/5. MVVM на практике/SwiftbookApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/6. VIPER на практике/MV(X)Petterns" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/6. VIPER на практике/SwiftbookApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/7. Clean Swift архитектура/MV(X)Petterns" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/!Вебинары/III уровень/8. Clean Swift на практике. Итоги/SwiftbookApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/Done/04. Фреймворк UIKit/13. UIProgressView/12. UIProgressView" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/SwiftBook/Done/04. Фреймворк UIKit/15. UICollectionView/14. UICollectionView" vcs="Git" />
   </component>
 </project>

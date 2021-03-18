@@ -104,4 +104,6 @@ dependencies {
 
     //BottomSheet
     implementation 'com.mahc.custombottomsheetbehavior:googlemaps-like:0.9.3'
+
+    implementation 'com.github.nabil6391:LottieSwipeRefreshLayout:1.0.0'
 }

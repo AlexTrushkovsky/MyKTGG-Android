@@ -83,7 +83,7 @@ class RecyclerAdapter(
             holder.itemDetail.text = withoutHTML(introtext[position])
             holder.itemDetail.visibility = View.VISIBLE
         } else {
-            holder.itemDetail.visibility = View.INVISIBLE
+            holder.itemDetail.text = ""
         }
 
         if (withoutHTML(category[position]) != "" && withoutHTML(category[position]).length >3) {
@@ -94,9 +94,9 @@ class RecyclerAdapter(
         }
 
         if (withoutHTML(created[position]) != "" && withoutHTML(created[position]).length >3) {
-            Log.e("DataFormatter", "${withoutHTML(created[position])}")
-            Log.e("DataFormatter", "${formatDate(withoutHTML(created[position]))}")
-            holder.itemCreated.text = formatDate(withoutHTML(created[position]))
+            Log.e("DataFormatter", withoutHTML(created[position]))
+            Log.e("DataFormatter", formatDate(withoutHTML(created[position])))
+            holder.itemCreated.text = formatDate(withoutHTML(created[position]).trim())
             holder.itemCreated.visibility = View.VISIBLE
         } else {
             holder.itemCreated.visibility = View.INVISIBLE

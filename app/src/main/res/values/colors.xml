@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#00674F</color>
     <color name="colorPrimaryDark">#00674F</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorAccent">@color/ic_launcher_background</color>
     <color name="backgroundGrayColor">#F0F4F8</color>
 
     <color name="mainActivityBackgroundColor">#00674F</color>
@@ -19,4 +19,5 @@
 
     <color name="default_value_item_text_color">#000000</color>
     <color name="default_value_item_divider_color">#000000</color>
+    <color name="today_text_green">#4DC591</color>
 </resources>

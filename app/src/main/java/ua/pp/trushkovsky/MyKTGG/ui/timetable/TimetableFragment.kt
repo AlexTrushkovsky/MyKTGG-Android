@@ -7,10 +7,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.ktx.Firebase
 import com.google.gson.GsonBuilder
 import com.michalsvec.singlerowcalendar.calendar.CalendarChangesObserver
 import com.michalsvec.singlerowcalendar.calendar.CalendarViewManager
@@ -19,15 +26,17 @@ import com.michalsvec.singlerowcalendar.selection.CalendarSelectionManager
 import com.michalsvec.singlerowcalendar.utils.DateUtils
 import kotlinx.android.synthetic.main.calendar_item.view.*
 import kotlinx.android.synthetic.main.fragment_timetable.*
-import kotlinx.coroutines.*
+import kotlinx.android.synthetic.main.fragment_timetable.view.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.*
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.R.drawable.round_button_green
 import ua.pp.trushkovsky.MyKTGG.R.drawable.round_button_red
+import ua.pp.trushkovsky.MyKTGG.helpers.OnSwipeTouchListener
 import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
-import ua.pp.trushkovsky.MyKTGG.ui.settings.getBoolFromSharedPreferences
-import ua.pp.trushkovsky.MyKTGG.ui.settings.getIntFromSharedPreferences
-import ua.pp.trushkovsky.MyKTGG.ui.settings.getStringFromSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.ui.settings.*
 import ua.pp.trushkovsky.MyKTGG.ui.timetable.api.TimetableRecyclerAdapter
 import ua.pp.trushkovsky.MyKTGG.ui.timetable.model.TimetableRoot
 import java.io.IOException
@@ -68,6 +77,26 @@ class TimetableFragment: Fragment(){
             getData()
         }
 
+        rv_main_recycler.setOnTouchListener(object: OnSwipeTouchListener(activity) {
+            override fun onSwipeRight() {
+                val positions = datePickerView.getSelectedIndexes()
+                if (positions.count() >= 0) {
+                    val currentPosition = positions[0]
+                    datePickerView.smoothScrollToPosition(currentPosition-1)
+                    datePickerView.select(currentPosition-1)
+                }
+            }
+
+            override fun onSwipeLeft() {
+                val positions = datePickerView.getSelectedIndexes()
+                if (positions.count() >= 0) {
+                    val currentPosition = positions[0]
+                    datePickerView.smoothScrollToPosition(currentPosition+1)
+                    datePickerView.select(currentPosition+1)
+                }
+            }
+        })
+
         val myCalendarViewManager = object : CalendarViewManager {
             override fun setCalendarViewResourceId(position: Int, date: Date, isSelected: Boolean): Int {
                 val cal = Calendar.getInstance()
@@ -87,6 +116,7 @@ class TimetableFragment: Fragment(){
 
         val myCalendarChangesObserver = object : CalendarChangesObserver {
             override fun whenSelectionChanged(isSelected: Boolean, position: Int, date: Date) {
+                if (date == pickedDate) return
                 Log.e("DatePicker", "picked new date... $date")
                 pickedDate = date
                 getData()
@@ -128,10 +158,48 @@ class TimetableFragment: Fragment(){
     }
 
     private fun getData() {
-        deinitModel()
-        val group = getStringFromSharedPreferences("group", activity)
-        val subgroup = getIntFromSharedPreferences("subgroup", activity)
+        var group = getStringFromSharedPreferences("group", activity)
+        if (group == "") {
+            val userID = Firebase.auth.currentUser?.uid
+            if (userID != null) {
+                FirebaseDatabase.getInstance().reference
+                    .child("users")
+                    .child(userID)
+                    .child("public").addValueEventListener(object : ValueEventListener {
+                        override fun onCancelled(error: DatabaseError) {}
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.value == null) { return }
+                            val map = snapshot.value as Map<String, Any>
+                            if (map["group"] != null) {
+                                group = map["group"].toString()
+                                saveStringToSharedPreferences("group", group, context)
+                            }
+                        }
+                    })
+            }
+        }
+        var subgroup = getIntFromSharedPreferences("subgroup", activity)
+        if (subgroup == -1) {
+            val userID = Firebase.auth.currentUser?.uid
+            if (userID != null) {
+                FirebaseDatabase.getInstance().reference
+                    .child("users")
+                    .child(userID)
+                    .child("public").addValueEventListener(object : ValueEventListener {
+                        override fun onCancelled(error: DatabaseError) {}
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.value == null) { return }
+                            val map = snapshot.value as Map<String, Any>
+                            if (map["subgroup"] != null) {
+                                subgroup = map["subgroup"].toString().toInt()
+                                saveIntToSharedPreferences("subgroup", subgroup, context)
+                            }
+                        }
+                    })
+            }
+        }
         val isStudent = getBoolFromSharedPreferences("isStudent", activity)
+        timetableSwipeRefresh.isRefreshing = true
         fetchData(pickedDate, group, subgroup, isStudent)
     }
 
@@ -213,6 +281,7 @@ class TimetableFragment: Fragment(){
     }
 
     private fun deinitModel() {
+        val size = lessonDescriptionList.size
         groupList.clear()
         dateList.clear()
         commentList.clear()
@@ -220,6 +289,8 @@ class TimetableFragment: Fragment(){
         lessonTimeList.clear()
         lessonDescriptionList.clear()
         lessonNumberList.clear()
+        rv_main_recycler?.removeAllViews()
+        rv_main_recycler?.adapter?.notifyItemRangeRemoved(0, size)
     }
 
     private fun formatJson(str: String): String {
@@ -235,13 +306,14 @@ class TimetableFragment: Fragment(){
     }
 
     private fun fetchData(pickedDate: Date, group: String, subgroup:Int, isStudent: Boolean) {
+        val animation = AnimationUtils.loadAnimation(context, R.anim.slide_up)
+        animation.repeatCount = 100
+        datePickerView?.view?.startAnimation(animation)
         OkHttpClient().dispatcher().cancelAll()
-        deinitModel()
-        var mode = ""
-        if (isStudent) {
-            mode = "group"
+        val mode = if (isStudent) {
+            "group"
         } else {
-            mode = "teacher"
+            "teacher"
         }
         val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy")
         var encodedGroup = java.net.URLEncoder.encode(group, "windows-1251")
@@ -252,45 +324,48 @@ class TimetableFragment: Fragment(){
         val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
-                GlobalScope.launch(Dispatchers.IO) {
-                val body = response.body()?.string() ?: return@launch
+                GlobalScope.launch(Dispatchers.Main) {
+                    deinitModel()
+                }
+                val body = response.body()?.string() ?: return
                 val formattedJson = formatJson(body)
                 try {
-                    val gson = GsonBuilder().create() ?: return@launch
-                    val timetableRoot = gson.fromJson(formattedJson, TimetableRoot::class.java)
-                    val item = timetableRoot.item ?: return@launch
-                    for (timetable in item) {
-                        Log.e("Timetable", "Result = $timetable")
-                        if (timetable.lesson_description != null &&
-                            timetable.lesson_name != null &&
-                            timetable.lesson_time != null &&
-                            timetable.group != null &&
-                            timetable.date != null &&
-                            timetable.comment != null &&
-                            timetable.lesson_number != null
-                        ) {
-                            addToList(
-                                timetable.group,
-                                timetable.date,
-                                timetable.comment,
-                                timetable.lesson_name,
-                                timetable.lesson_time,
-                                timetable.lesson_description,
-                                timetable.lesson_number
-                            )
+                        val gson = GsonBuilder().create() ?: return
+                        val timetableRoot = gson.fromJson(formattedJson, TimetableRoot::class.java)
+                        val item = timetableRoot.item ?: return
+                        for (timetable in item) {
+                            if (timetable.lesson_description != null &&
+                                timetable.lesson_name != null &&
+                                timetable.lesson_time != null &&
+                                timetable.group != null &&
+                                timetable.date != null &&
+                                timetable.comment != null &&
+                                timetable.lesson_number != null
+                            ) {
+                                addToList(
+                                    timetable.group,
+                                    timetable.date,
+                                    timetable.comment,
+                                    timetable.lesson_name,
+                                    timetable.lesson_time,
+                                    timetable.lesson_description,
+                                    timetable.lesson_number
+                                )
+                            }
                         }
-                        withContext(Dispatchers.Main) {
+                        GlobalScope.launch(Dispatchers.Main) {
                             noLessonImage.isVisible = lessonDescriptionList.isEmpty()
                             if (rv_main_recycler != null) {
                                 if (rv_main_recycler.adapter != null) {
-                                    rv_main_recycler.adapter!!.notifyDataSetChanged()
+                                    rv_main_recycler.adapter?.notifyItemRangeChanged(0, lessonDescriptionList.size)
                                 } else {
                                     setUpRecyclerView()
                                 }
                             }
+                            Log.e("timetable", "refreshing tiemtable")
                             timetableSwipeRefresh.isRefreshing = false
                         }
-                    }
+
                 } catch (e: Exception) {
                     Log.e("timetable", "$e")
                     //custom error with e
@@ -299,7 +374,6 @@ class TimetableFragment: Fragment(){
                     }
 
                 }
-            }
             }
             override fun onFailure(call: Call, e: IOException) {
                 print("Failed to execute request")

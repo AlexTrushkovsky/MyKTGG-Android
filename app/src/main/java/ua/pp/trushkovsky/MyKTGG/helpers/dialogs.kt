@@ -30,3 +30,16 @@ fun showDialogWith(body: String, context: Context?, ref: SwipeRefreshLayout?, ex
     val alertDialog = dialogBuilder.create()
     alertDialog.show()
 }
+
+fun showDialogWith(title: String, body: String, context: Context?, onOkAction: Unit) {
+    val dialogBuilder = AlertDialog.Builder(context)
+    dialogBuilder.setIcon(R.drawable.main_appicon)
+    dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+        dialog.dismiss()
+        onOkAction
+    })
+    dialogBuilder.setTitle(title)
+    dialogBuilder.setMessage(body)
+    val alertDialog = dialogBuilder.create()
+    alertDialog.show()
+}

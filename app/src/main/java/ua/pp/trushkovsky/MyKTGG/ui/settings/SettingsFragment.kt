@@ -24,29 +24,141 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import kotlinx.android.synthetic.main.fragment_settings.*
 import ua.pp.trushkovsky.MyKTGG.R
-import ua.pp.trushkovsky.MyKTGG.ui.news.d.BASE_NEWS_URL
+import ua.pp.trushkovsky.MyKTGG.R.drawable.def_green
+import ua.pp.trushkovsky.MyKTGG.R.drawable.def_red
 import java.io.ByteArrayOutputStream
 
 
 @Suppress("DEPRECATION")
 class SettingsFragment : Fragment() {
+
+    var isStudent = true
+        set(value) {
+            field = value
+            checkVerification()
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_settings, container, false)
-
-        return root
+        return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
+
+    fun subscribeToNews(bool: Boolean) {
+        if (bool) {
+            Firebase.messaging.subscribeToTopic("news").addOnCompleteListener {
+                if (it.isSuccessful) {
+                    saveBoolToSharedPreferences("isSubscribedToNews", bool, context)
+                    Toast.makeText(context, "Тепер вам будуть надходити повідомлення про новини", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Firebase.messaging.unsubscribeFromTopic("news").addOnCompleteListener {
+                if (it.isSuccessful) {
+                    saveBoolToSharedPreferences("isSubscribedToNews", bool, context)
+                    Toast.makeText(context, "Вам більше не будуть надходити повідомлення про новини", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Don`t Subscribed to news: ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun subscribeToChanges() {
+        val group = getStringFromSharedPreferences("group", context)
+        val transliterated = transliterate(group.trim())
+            Firebase.messaging.subscribeToTopic("changesOf$transliterated").addOnCompleteListener {
+                if (it.isSuccessful) {
+                    saveStringToSharedPreferences("changesPush", group, context)
+                    val toast = Toast.makeText(context, "Тепер вам будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
+                    toast.show()
+                } else {
+                    val toast = Toast.makeText(context, "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
+                    toast.show()
+                }
+            }
+    }
+
+    fun unsubscribeFromChanges() {
+        val group = getStringFromSharedPreferences("changesPush", context)
+        if (group != "") {
+            val transliterated = transliterate(group.trim())
+            Firebase.messaging.unsubscribeFromTopic("changesOf$transliterated").addOnCompleteListener {
+                if (it.isSuccessful) {
+                    saveStringToSharedPreferences("changesPush", "", context)
+                    Toast.makeText(context, "Вам більше не будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT).show()
+                    changeNotificationsSwitch?.isChecked = false
+                } else {
+                    Toast.makeText(context, "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun subscribeToGroupPushes() {
+        val group = getStringFromSharedPreferences("group", context)
+        val transliterated = transliterate(group.trim())
+        Firebase.messaging.subscribeToTopic(transliterated).addOnCompleteListener {
+            if (it.isSuccessful) saveStringToSharedPreferences("groupOfPushes", group, context)
+        }
+    }
+    fun unsubscribeFromGroupPushes() {
+        val group = getStringFromSharedPreferences("groupOfPushes", context)
+        if (group != "") {
+            val transliterated = transliterate(group.trim())
+            Firebase.messaging.unsubscribeFromTopic("changesOf$transliterated").addOnCompleteListener {
+                if (it.isSuccessful) saveStringToSharedPreferences("groupOfPushes", "", context)
+            }
+        }
+    }
+
+    private fun transliterate(nonLatin: String): String {
+        val dic = mapOf('а' to 'a', 'б' to 'b','в' to 'v',
+            'г' to 'g', 'д' to 'd', 'е' to 'e', 'ё' to 'y','ж' to 'z',
+            'з' to 'z', 'и' to 'i', 'і' to 'i', 'ї' to 'i', 'й' to 'y',
+            'к' to 'k', 'л' to 'l', 'м' to 'm', 'н' to 'n', 'о' to 'o',
+            'п' to 'p', 'р' to 'r', 'с' to 's', 'т' to 't', 'у' to 'u',
+            'ф' to 'f', 'х' to 'h', 'ц' to 'c', 'ч' to 'c', 'ш' to 's',
+            'щ' to 's', 'ы' to 'i', 'э' to 'e', 'є' to 'e', 'ю' to 'u',
+            'я' to 'a', 'ь' to ' ', '(' to ' ', ')' to ' ')
+        var transliterated = ""
+        for (i in nonLatin) {
+            val char = dic[i.toLowerCase()]
+            transliterated += if (char != null) {
+                dic[i.toLowerCase()]
+            } else {
+                i
+            }
+        }
+        return transliterated.filter { !it.isWhitespace() }
+    }
 
     override fun onStart() {
         super.onStart()
         fillDataFromDefaults()
         updateUserValues()
+        checkVerification()
+
+        if (getBoolFromSharedPreferences("isSubscribedToNews", context)) newsNotifiactionsSwitch.isChecked = true
+        newsNotifiactionsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            subscribeToNews(isChecked)
+        }
+        if (getStringFromSharedPreferences("changesPush", context) != "") changeNotificationsSwitch.isChecked = true
+        changeNotificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                subscribeToChanges()
+            } else {
+                unsubscribeFromChanges()
+            }
+        }
         userInfo.setOnClickListener {
             val navController = NavHostFragment.findNavController(this)
             navController.navigate(R.id.action_navigation_settings_to_navigation_account_settings2)
@@ -88,6 +200,7 @@ class SettingsFragment : Fragment() {
         val subgroup = getIntFromSharedPreferences("subgroup", activity)
         val image = getStringFromSharedPreferences("userImage", activity)
         val isStudent = getBoolFromSharedPreferences("isStudent", activity)
+        this.isStudent = isStudent
         if (name != "" && userName != null) {
             userName.text = name
         }
@@ -101,7 +214,15 @@ class SettingsFragment : Fragment() {
             val image = decodeBase64(image)
             if (image != null) userImage.setImageBitmap(image)
         }
-        userSubGroup.isVisible = !isStudent
+        if (userSubGroup != null) {
+            if (isStudent) {
+                userSubGroup.text =
+                    if (subgroup == 0) "1 підгрупа" else "2 підгрупа"
+                saveIntToSharedPreferences("subgroup", subgroup, activity)
+            } else {
+                userSubGroup.text = "Викладач"
+            }
+        }
     }
 
     fun encodeTobase64(image: Bitmap): String? {
@@ -119,6 +240,41 @@ class SettingsFragment : Fragment() {
             .decodeByteArray(decodedByte, 0, decodedByte.size)
     }
 
+    fun checkVerification() {
+        if (isStudent) {
+            settings_verified_image?.isVisible = false
+            no_verification_banner?.isVisible = false
+        } else {
+            var userID = Firebase.auth.currentUser?.uid ?: return
+            FirebaseDatabase.getInstance().reference
+                .child("users")
+                .child(userID)
+                .child("secure")
+                .addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.value == null) { return }
+                        val map = snapshot.value as Map<String, Any>
+                        Log.e("Settings", "$map")
+                        if (map["verified"] != null) {
+                            val group = getStringFromSharedPreferences("group", activity)
+                            if (group == map["verified"].toString()) {
+                                settings_verified_image?.setImageResource(def_green)
+                                no_verification_banner?.isVisible = false
+                            } else {
+                                settings_verified_image?.setImageResource(def_red)
+                                no_verification_banner?.isVisible = true
+                            }
+                        } else {
+                            settings_verified_image.setImageResource(def_red)
+                            no_verification_banner?.isVisible = true
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            settings_verified_image?.isVisible = true
+        }
+    }
+
     fun updateUserValues() {
         var userID = Firebase.auth.currentUser?.uid ?: return
         FirebaseDatabase.getInstance().reference
@@ -130,37 +286,55 @@ class SettingsFragment : Fragment() {
                     if (snapshot.value == null) { return }
                     val map = snapshot.value as Map<String, Any>
                     Log.e("Settings", "$map")
-                    val url = map["avatarUrl"].toString()
-                    val name = map["name"].toString()
-                    val subgroup = map["subgroup"].toString().toInt()
-                    val group = map["group"].toString()
-                    val isStudent = map["isStudent"].toString().toBoolean()
-                    saveBoolToSharedPreferences("isStudent", isStudent, activity)
-
-                    if (userSubGroup != null) {
-                        userSubGroup.isVisible = isStudent
-                    }
-
-                    Log.e("Settings", url)
-                    if (userImage != null) {
-                        if (url != "null") {
-                            Glide.with(requireContext()).load(url).into(userImage)
-                        } else {
-                            userImage.setImageResource(R.drawable.avatar_placeholder)
+                    if (map["avatarUrl"] != null) {
+                        val url = map["avatarUrl"].toString()
+                        if (userImage != null) {
+                            if (url != "null") {
+                                Glide.with(requireContext()).load(url).into(userImage)
+                            } else {
+                                userImage.setImageResource(R.drawable.avatar_placeholder)
+                            }
                         }
                     }
-                    if (userName != null) {
-                        userName.text = name
-                        saveStringToSharedPreferences("name", name, activity)
+                    if (map["name"] != null) {
+                        val name = map["name"].toString()
+                        if (userName != null) {
+                            userName.text = name
+                            saveStringToSharedPreferences("name", name, activity)
+                        }
                     }
-                    if (userGroup != null) {
-                        userGroup.text = group
-                        saveStringToSharedPreferences("group", group, activity)
+                    if (map["isStudent"] != null) {
+                        val isStudent = map["isStudent"].toString().toBoolean()
+                        this@SettingsFragment.isStudent = isStudent
+                        saveBoolToSharedPreferences("isStudent", isStudent, activity)
                     }
-                    if (userSubGroup != null && isStudent) {
-                        userSubGroup.text = if (subgroup == 0) "1 підгрупа" else "2 підгрупа"
-                        saveIntToSharedPreferences("subgroup", subgroup, activity)
+                    if (map["subgroup"] != null) {
+
+                        val subgroup = map["subgroup"].toString().toInt()
+                        if (userSubGroup != null) {
+                            if (isStudent) {
+                                userSubGroup.text =
+                                    if (subgroup == 0) "1 підгрупа" else "2 підгрупа"
+                                saveIntToSharedPreferences("subgroup", subgroup, activity)
+                            } else {
+                                userSubGroup.text = "Викладач"
+                            }
+                        }
                     }
+                    if (map["group"] != null) {
+                        val group = map["group"].toString()
+                        if (userGroup != null) {
+                            userGroup.text = group
+                            if (group != getStringFromSharedPreferences("group", context)) {
+                                unsubscribeFromChanges()
+                                unsubscribeFromGroupPushes()
+                                saveStringToSharedPreferences("group", group, activity)
+                                subscribeToGroupPushes()
+                                subscribeToChanges()
+                            }
+                        }
+                    }
+
                     if (userImage != null) {
                         userImage.invalidate()
                         val bitmap = userImage.drawable ?: return

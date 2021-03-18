@@ -72,6 +72,9 @@ class RegActivity : AppCompatActivity() {
         signInWithTeams.setOnClickListener {
             signInWithTeams()
         }
+        forgotPassRegisterActivity.setOnClickListener {
+            ForgotPass.display(supportFragmentManager)
+        }
     }
 
     private fun signInWithGoogle() {
@@ -172,7 +175,8 @@ class RegActivity : AppCompatActivity() {
     }
 
     private fun signInWithFacebook() {
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile","email"))
+        callbackManager = CallbackManager.Factory.create()
+        LoginManager.getInstance().logInWithReadPermissions(this, listOf("public_profile","email"))
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult>{
             override fun onSuccess(result: LoginResult?) {
                 handleFacebookAccesstoken(result?.accessToken)

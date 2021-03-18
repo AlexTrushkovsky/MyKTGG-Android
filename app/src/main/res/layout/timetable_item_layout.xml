@@ -9,13 +9,13 @@
 
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_view"
+        android:id="@+id/time_view"
         android:layout_width="60sp"
         android:layout_height="0dp"
         android:layout_gravity="center"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="15dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="15dp"
         app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/separatorView"
@@ -65,23 +65,25 @@
         android:layout_marginStart="10dp"
         android:background="@color/colorBackground"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/card_view"
+        app:layout_constraintStart_toEndOf="@+id/time_view"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_view2"
+        android:id="@+id/lesson_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="15dp"
         app:cardBackgroundColor="#4CC591"
         app:cardCornerRadius="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/separatorView"
-        app:layout_constraintTop_toTopOf="@+id/card_view">
+        app:layout_constraintTop_toTopOf="@+id/time_view">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

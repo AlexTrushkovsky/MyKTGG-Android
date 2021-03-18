@@ -27,7 +27,12 @@
         tools:layout="@layout/fragment_settings" >
         <action
             android:id="@+id/action_navigation_settings_to_navigation_account_settings2"
-            app:destination="@id/navigation_account_settings" />
+            app:destination="@id/navigation_account_settings"
+            app:enterAnim="@anim/enter_from_right"
+            app:exitAnim="@anim/exit_to_left"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/enter_from_left"
+            app:popExitAnim="@anim/exit_to_right" />
     </fragment>
     <fragment
         android:id="@+id/navigation_account_settings"

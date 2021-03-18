@@ -23,9 +23,7 @@
     <size android:height="@dimen/team_picker_divider_height"/>
 
     <stroke
-        android:color="@color/colorAccent"
-        android:dashWidth="@dimen/team_picker_divider_stroke_dash_width"
-        android:dashGap="@dimen/team_picker_divider_stroke_dash_gap"
-        android:width="@dimen/team_picker_divider_stroke_width"/>
+        android:width="1dp"
+        android:color="@color/colorTextSubtitle" />
 
 </shape>

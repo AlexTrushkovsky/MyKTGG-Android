@@ -1,18 +1,17 @@
 package ua.pp.trushkovsky.MyKTGG.ui.home
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -23,17 +22,21 @@ import com.google.gson.reflect.TypeToken
 import com.mahc.custombottomsheetbehavior.BottomSheetBehaviorGoogleMapsLike
 import kotlinx.android.synthetic.main.bottom_sheet_content.*
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_news.*
 import kotlinx.android.synthetic.main.fragment_news.rv_main_recycler
-import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.coroutines.*
+import kotlinx.android.synthetic.main.fragment_timetable.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
 import ua.pp.trushkovsky.MyKTGG.ui.home.weather.WeatherModel
-import ua.pp.trushkovsky.MyKTGG.ui.news.api.RecyclerAdapter
+import ua.pp.trushkovsky.MyKTGG.ui.settings.saveStringToSharedPreferences
 import java.io.IOException
-import java.lang.Exception
 import java.lang.reflect.Type
+
 
 class HomeFragment : Fragment() {
 
@@ -67,38 +70,6 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupWeather()
         setupBottomSheetData()
-        val behavior = BottomSheetBehaviorGoogleMapsLike.from(bottom_sheet)
-        behavior.isCollapsible = false
-        behavior.addBottomSheetCallback(object : BottomSheetBehaviorGoogleMapsLike.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            }
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehaviorGoogleMapsLike.STATE_COLLAPSED -> Log.d(
-                        "bottomsheet-",
-                        "STATE_COLLAPSED"
-                    )
-                    BottomSheetBehaviorGoogleMapsLike.STATE_DRAGGING -> Log.d(
-                        "bottomsheet-",
-                        "STATE_DRAGGING"
-                    )
-                    BottomSheetBehaviorGoogleMapsLike.STATE_EXPANDED -> Log.d(
-                        "bottomsheet-",
-                        "STATE_EXPANDED"
-                    )
-                    BottomSheetBehaviorGoogleMapsLike.STATE_ANCHOR_POINT -> Log.d(
-                        "bottomsheet-",
-                        "STATE_ANCHOR_POINT"
-                    )
-                    BottomSheetBehaviorGoogleMapsLike.STATE_HIDDEN -> Log.d(
-                        "bottomsheet-",
-                        "STATE_HIDDEN"
-                    )
-                    else -> Log.d("bottomsheet-", "STATE_SETTLING")
-                }
-            }
-        })
     }
 
     override fun onStart() {
@@ -113,6 +84,13 @@ class HomeFragment : Fragment() {
         main_chat_button.setOnClickListener {
             showDialogWith("Працюємо", "Наразі чат в розробці, очікуйте в наступних версіях", context, null)
         }
+
+        val behavior = BottomSheetBehaviorGoogleMapsLike.from(bottom_sheet)
+        behavior.isCollapsible = false
+
+        mainSwipeRefresh?.setOnRefreshListener {
+            clearList()
+        }
     }
 
     private fun addToList(
@@ -125,18 +103,31 @@ class HomeFragment : Fragment() {
         imageList.add(image)
     }
 
-    fun setupBottomSheetData() {
+    private fun clearList() {
+        saveStringToSharedPreferences("PushList", "", activity)
+        titleList.clear()
+        textList.clear()
+        imageList.clear()
+        setUpRecyclerView()
+        main_no_pushes_title.isVisible = true
+        mainSwipeRefresh?.stopRefreshing()
+    }
+
+    private fun setupBottomSheetData() {
         val pushes = getListOfPushes()
         if (pushes == null) {
+            mainSwipeRefresh.isVisible = false
             main_no_pushes_title.isVisible = true
         } else {
             for (push in pushes) {
-                val title = push[0]
-                val text = push[1]
-                val image = push[2]
-                addToList(title, text, image)
+                if (push.size > 1) {
+                    val title = push[0]
+                    val text = push[1]
+                    val image = push[2]
+                    addToList(title, text, image)
+                }
             }
-            main_no_pushes_title.isVisible = false
+            if (titleList.size != 0) main_no_pushes_title.isVisible = false
             setUpRecyclerView()
         }
     }

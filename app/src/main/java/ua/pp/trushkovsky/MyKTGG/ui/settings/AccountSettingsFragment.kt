@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.RegActivity
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 
 @Suppress("DEPRECATION")
@@ -65,11 +66,14 @@ class AccountSettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_account_settings, container, false)
-        return root
+        return inflater.inflate(R.layout.fragment_account_settings, container, false)
     }
 
     fun setupPickerView() {
+        groupPicker?.isVisible = false
+        account_group_progress?.isVisible = true
+        shadow_view?.isVisible = true
+        segmentedControl?.isVisible = false
         CoroutineScope(Dispatchers.IO).async {
             val network = GroupNetworkController()
             val itemList = network.fetchData(isStudent)
@@ -77,6 +81,16 @@ class AccountSettingsFragment : Fragment() {
                 with(groupPicker) {
                     items = itemList
                     setSelectedItem(items[0])
+                    val currentGroup = getStringFromSharedPreferences("group", context)
+                    for ((index, group) in items.withIndex()) {
+                        if (group.toString() == currentGroup) {
+                            setSelectedItem(items[index])
+                        }
+                    }
+                    segmentedControl?.isVisible = true
+                    groupPicker?.isVisible = true
+                    account_group_progress?.isVisible = false
+                    shadow_view?.isVisible = false
                 }
             }
         }
@@ -131,6 +145,13 @@ class AccountSettingsFragment : Fragment() {
         }
         account_changeUserType_button.setOnClickListener {
             isStudent = !isStudent
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            val fileUri = data?.data
+            accountUserImage.setImageURI(fileUri)
         }
     }
 

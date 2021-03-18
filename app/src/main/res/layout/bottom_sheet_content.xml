@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout android:paddingTop="25dp"
-    android:background="@drawable/rounded_background"
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -8,31 +7,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-        <TextView
-            android:id="@+id/main_no_pushes_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
-            android:text="Нових повідомлень немає"
-            android:textAlignment="center"
-            android:textColor="@color/inactiveIconColor"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/main_no_pushes_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:text="Нових повідомлень немає"
+        android:textAlignment="center"
+        android:textColor="@color/inactiveIconColor"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+   <com.nabilmh.lottieswiperefreshlayout.LottieSwipeRefreshLayout
+        android:id="@+id/mainSwipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="970dp"
+        app:lottie_rawRes="@raw/delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_no_pushes_title"
+        app:layout_constraintVertical_bias="0.0">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_main_recycler"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/main_no_pushes_title"
+            android:layout_width="match_parent"
+            android:layout_height="995dp"
+            android:layout_alignParentBottom="true"
             tools:listitem="@layout/main_item_layout" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+   </com.nabilmh.lottieswiperefreshlayout.LottieSwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
