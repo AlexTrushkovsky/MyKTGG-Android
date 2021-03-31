@@ -102,8 +102,6 @@
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="995dp"
-
-        android:background="@drawable/bottom_sheet_background"
         android:orientation="vertical"
         app:anchorPoint="255dp"
         app:behavior_hideable="true"

@@ -5,7 +5,8 @@
     android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+
+    android:background="@drawable/rounded_background">
 
     <TextView
         android:id="@+id/main_no_pushes_title"
@@ -24,25 +25,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-   <com.nabilmh.lottieswiperefreshlayout.LottieSwipeRefreshLayout
-        android:id="@+id/mainSwipeRefresh"
+
+    <com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
+        android:id="@+id/bootomSheetRecycler"
         android:layout_width="match_parent"
-        android:layout_height="970dp"
-        app:lottie_rawRes="@raw/delete"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="995dp"
+        app:behind_swiped_item_bg_color="@color/transparent"
+        app:behind_swiped_item_custom_layout="@layout/behind_swiped_vertical_list"
+        app:behind_swiped_item_icon="@drawable/ic_remove_item"
+        app:behind_swiped_item_icon_centered="false"
+        app:behind_swiped_item_icon_margin="16dp"
+        app:item_layout="@layout/main_item_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/main_no_pushes_title"
-        app:layout_constraintVertical_bias="0.0">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_main_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="995dp"
-            android:layout_alignParentBottom="true"
-            tools:listitem="@layout/main_item_layout" />
-
-   </com.nabilmh.lottieswiperefreshlayout.LottieSwipeRefreshLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:swiped_item_opacity_fades_on_swiping="true" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

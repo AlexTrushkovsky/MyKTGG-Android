@@ -20,6 +20,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import ua.pp.trushkovsky.MyKTGG.ui.settings.GroupNetworkController
+import ua.pp.trushkovsky.MyKTGG.ui.settings.saveBoolToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.ui.settings.saveIntToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.ui.settings.saveStringToSharedPreferences
 
 class GroupChoose : DialogFragment() {
     private var isStudent = true
@@ -129,6 +132,10 @@ class GroupChoose : DialogFragment() {
         }
         updateFirebaseValue("subgroup", subgroup)
         updateFirebaseValue("isStudent", isStudent)
+
+        group?.let { saveStringToSharedPreferences("group", it, context) }
+        saveIntToSharedPreferences("subgroup", subgroup, context)
+        saveBoolToSharedPreferences("isStudent", isStudent, context)
     }
 
     private fun updateFirebaseValue(key: String, value: Any) {

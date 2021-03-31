@@ -18,8 +18,11 @@
 
         <Button
             android:id="@+id/group_choose_changeUserType_button"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:layout_marginEnd="70dp"
+            android:background="@drawable/button_card_view"
             android:text="Обрати викладача"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,6 +33,8 @@
             style="@style/GroupPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="70dp"
+            android:layout_marginEnd="70dp"
             app:layout_constraintBottom_toTopOf="@+id/segmented2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,8 +47,8 @@
             android:layout_margin="10dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/groupPicker"
+            app:layout_constraintStart_toStartOf="@+id/groupPicker"
             app:sc_border_width="2dp"
             app:sc_corner_radius="10dp">
 

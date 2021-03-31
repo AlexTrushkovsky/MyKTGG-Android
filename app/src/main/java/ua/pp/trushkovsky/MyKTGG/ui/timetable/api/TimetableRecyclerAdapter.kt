@@ -17,20 +17,16 @@ import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.R.id
 import ua.pp.trushkovsky.MyKTGG.R.layout
 import java.util.*
+import kotlin.math.ceil
 
 class TimetableRecyclerAdapter(
 
     private var isStudent: Boolean,
-    private var pickedDate: Date,
     private var subGroup: Int,
 
-    var group:MutableList<String>,
     var date: MutableList<String>,
-    var comment: MutableList<String>,
-    var lessonName: MutableList<String>,
     var lessonTime: MutableList<String>,
-    var lessonDescription: MutableList<String>,
-    var lessonNumber: MutableList<String>
+    var lessonDescription: MutableList<String>
 
 ): RecyclerView.Adapter<TimetableRecyclerAdapter.ViewHolder>() {
 
@@ -44,6 +40,10 @@ class TimetableRecyclerAdapter(
         val itemLessonEnd: TextView = itemView.findViewById(id.item_lessonEndView)
         val lessonView: CardView = itemView.findViewById(id.lesson_view)
         val timeView: CardView = itemView.findViewById(id.time_view)
+    }
+
+    override fun getItemCount(): Int {
+        return lessonDescription.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TimetableRecyclerAdapter.ViewHolder {
@@ -61,392 +61,417 @@ class TimetableRecyclerAdapter(
 
     override fun onBindViewHolder(holder: TimetableRecyclerAdapter.ViewHolder, position: Int) {
         if (position <= itemCount) {
+            configureTime(holder, position)
+            configureLesson(holder, position)
+        }
+    }
 
-            if (lessonTime[position] != null) {
-                val firstPart = lessonTime[position].substringBefore("-")
-                val secondPart = lessonTime[position].substringAfter("-")
-                holder.itemLessonStart.text = firstPart
-                holder.itemLessonEnd.text = secondPart
+    fun configureTime(holder: TimetableRecyclerAdapter.ViewHolder, position: Int) {
+        if (lessonTime[position] != null) {
+            val firstPart = lessonTime[position].substringBefore("-")
+            val secondPart = lessonTime[position].substringAfter("-")
+            holder.itemLessonStart.text = firstPart
+            holder.itemLessonEnd.text = secondPart
+        }
+    }
+
+    fun configureLesson(holder: TimetableRecyclerAdapter.ViewHolder, position: Int) {
+        formatCellToLesson(holder)
+        var lesson = lessonDescription[position]
+        if (isStudent) {
+            configAsStudent(lesson, holder)
+        } else {
+            configAsTeacher(lesson, holder)
+        }
+    }
+
+    fun configAsStudent(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        isStudentBig(lesson, holder)
+    }
+
+    fun configAsTeacher(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        isTeacherRoomChange(lesson, holder)
+    }
+
+    fun isStudentBig(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //getting subgroup if bigchange and giving new lessonDesk
+        if (lesson.contains("(підгр. 1)") && lesson.contains("(підгр. 2)") && lesson.contains("<br> <div class='link'> </div> <br>")) {
+            val firstPart = lesson.split("<br> <div class='link'> </div> <br>")[0]
+            val lastPart = lesson.split("<br> <div class='link'> </div> <br>")[1]
+            var lessonForSubgroup: String? = null
+            if (firstPart.contains("(підгр. ${subGroup+1}")) {
+                lessonForSubgroup = "$firstPart<br>"
+            } else {
+                lessonForSubgroup = lastPart
             }
+            if (lessonForSubgroup != null) {
+                val lesson = lessonForSubgroup.replace("<div class='link'> </div>", "").replace("<div class='link'></div>", "").trim()
+                Log.i("timetable", "${holder.itemLessonStart.text} - got subgroup lesson")
+                isStudentRoomChange(lesson, holder)
+                return
+            }
+        }
+        val formattedLesson = lesson.replace("<div class='link'> </div>", "").trim()
+        isStudentRoomChange(formattedLesson, holder)
+    }
 
-            var lesson = lessonDescription[position]
-            if (isStudent) {
-                if (isTZ(lesson)) {
-                    //format cell to change
-                    formatCellToChange(holder)
-                    if (isBigChangeForStudent(lesson)) {
-                        val firstSubgroupLesson = lesson.split("<br> <br>")[0]
-                        print(firstSubgroupLesson)
-                        val secondSubgroupLesson = lesson.split("<br> <br>")[1]
-                        print(secondSubgroupLesson)
-                        if (subGroup == 0) {
-                            //работаем по первой сабгруппе
-                        } else if (subGroup == 1) {
-                            //работает по второй сабгруппе
-                        }
-                    } else {
-                        //если замена маленькая
-                    }
+    var room: String? = null
+    fun isStudentRoomChange(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes, remember new room
+        if (lesson.contains("Увага! Заняття перенесено у іншу аудиторію")) {
+            val lessonStr = lesson.replace("Увага! Заняття перенесено у іншу аудиторію", "")
+            val room = lessonStr.split("!")[0].trim()
+            this.room = room
+            formatCellToChange(holder)
+            Log.i("timetable","${holder.itemLessonStart.text} - room change found")
+            isStudentChangeWithLessonNameWithCab(lessonStr.replace("$room!", "").trim(), holder)
+            return
+        }
+        isStudentChangeWithLessonNameWithCab(lesson, holder)
+    }
 
-                    if (isTZcancel(lesson)) {
-                        val lessonArr = lesson.split("Увага! Заняття відмінено!")
-                        if (lessonArr.count() == 2) {
-                            if (lessonArr[1].contains("(підгр. ${subGroup+1})")) {
-                                holder.cabImage.isVisible = false
-                                holder.teacherImage.isVisible = false
-                                holder.itemLesson .text = "Заняття відмінено"
-                                holder.itemCabNum.text = ""
-                                holder.itemTeacherView.text = ""
-                                return
-                            }
-                        } else if (lessonArr.count() == 3) {
-                            if (lessonArr[2].contains("(підгр. ${subGroup+1})")) {
-                                holder.cabImage.isVisible = false
-                                holder.teacherImage.isVisible = false
-                                holder.itemLesson .text = "Заняття відмінено"
-                                holder.itemCabNum.text = ""
-                                holder.itemTeacherView.text = ""
-                                return
-                            }
-                        }
-                    }
-
-                    lesson = lesson.replace("Увага! Заміна!", "")
-                    var newLesson = lesson.split("замість:")[0]
-                    val oldLesson = lesson.split("замість:")[1]
-                    if (oldLesson.split("<br>").count() == 3) {
-                        newLesson = "${oldLesson.split("<br>")[0]}<br> $newLesson"
-                    }
-                    print("NL: $newLesson")
-                    print("OLDL: $oldLesson")
-
-                    if (isT3(newLesson)) {
-
-                    } else if (isT2(newLesson)) {
-                        val room = newLesson.split("<br>")[0]
-                        newLesson = newLesson.replace("$room<br>", "").trim()
-                        val teacher =
-                            "${newLesson.split(".")[0]}.${newLesson.split(".")[1]}.".trim()
-                        newLesson = newLesson.replace(teacher, "")
-                        val subgroup = newLesson.split("<br>")[0].trim()
-                        newLesson = newLesson.split("<br>")[1]
-                        val lesson =
-                            newLesson.replace("<br>", "").replace("<div class='link'> </div>", "")
-                                .trim()
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("teacher: $teacher")
-                        holder.itemTeacherView.text = teacher
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else if (isT1(newLesson, isStudent)) {
-                        val room = newLesson.split("<br>")[0]
-                        newLesson = newLesson.replace("$room<br>", "").trim()
-                        val teacher =
-                            "${newLesson.split(".")[0]}.${newLesson.split(".")[1]}.".trim()
-                        newLesson = newLesson.replace(teacher, "")
-                        val lesson = newLesson.replace("<br>", "").trim()
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("teacher: $teacher")
-                        holder.itemTeacherView.text = teacher
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else {
-                        holder.itemLesson.text =
-                            newLesson.replace("<br>", "").replace("<div class='link'> </div>", "")
-                                .trim()
-                        holder.cabImage.isVisible = false
-                        holder.teacherImage.isVisible = false
-                        holder.itemCabNum.text = ""
-                        holder.itemTeacherView.text = ""
-                    }
-
-                } else {
-                    //format cell to lesson
-                    formatCellToLesson(holder)
-                    if (isT3(lesson)) {
-                        val firstPart = lesson.split("<br> <div class='link'> </div> <br>")[0]
-                        val secondPart = lesson.split("<br> <div class='link'> </div> <br>")[1]
-                        print("firstPart of t3: $firstPart")
-                        print("secondPart of t3: $secondPart")
-                        var mainPart = String()
-                        val subGroupString = "(підгр. ${subGroup+1})"
-                        if (firstPart.contains(subGroupString)) {
-                            mainPart = firstPart
-                        } else if (secondPart.contains("(підгр. ${subGroup+1})")) {
-                            mainPart = secondPart
-                        } else return
-                        val room = mainPart.split("<br>")[0]
-                        mainPart = mainPart.replace("$room<br>", "").trim()
-                        val teacher = "${mainPart.split(".")[0]}.${lesson.split(".")[1]}.".trim()
-                        mainPart = mainPart.replace(teacher, "")
-                        val subgroup = mainPart.split("<br>")[0].trim()
-                        mainPart = mainPart.split("<br>")[1]
-                        val lesson = mainPart.replace("<br>", "").replace("<div class='link'> </div>", "").trim()
-                        print("subgroup: $subgroup")
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("teacher: $teacher")
-                        holder.itemTeacherView.text = teacher
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else if (isT2(lesson)) {
-                        val room = lesson.split(("<br>")[0]).toString()
-                        lesson = lesson.replace("$room<br>", "").trim()
-                        val teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}.".trim()
-                        lesson = lesson.replace(teacher, "")
-                        val subgroup = lesson.split("<br>")[0].trim()
-                        lesson = lesson.split("<br>")[1]
-                        val lesson = lesson.replace("<br>","").replace("<div class='link'> </div>","").trim()
-                        print("subgroup: $subgroup")
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("teacher: $teacher")
-                        holder.itemTeacherView.text = teacher
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else if (isT1(lesson, isStudent)) {
-                        val room = lesson.split("<br>")[0]
-                        lesson = lesson.replace("$room<br>", "").trim()
-                        val teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}.".trim()
-                        lesson = lesson.replace(teacher,"")
-                        val lesson = lesson.replace("<br>","").replace("<div class='link'> </div>","").trim()
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("teacher: $teacher")
-                        holder.itemTeacherView.text = teacher
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else {
-                        holder.itemLesson.text = lesson.replace("<br>", "").replace("<div class='link'> </div>","").trim()
-                        holder.cabImage.isVisible = false
-                        holder.teacherImage.isVisible = false
-                        holder.itemCabNum.text = ""
-                        holder.itemTeacherView.text = ""
-                    }
+    fun isStudentChangeWithLessonNameWithCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заміна!") && lesson.contains("замість:") && lesson.split("<br>").count() == 3) {
+            var lessonStr = lesson.replace("Увага! Заміна!", "").trim()
+            val teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "").trim()
+            val lessonName = lessonStr.split("замість:")[0].trim()
+            if (lessonName != "") {
+                lessonStr = lessonStr.replace(lessonName, "").trim()
+                lessonStr = lessonStr.replace("замість:", "").trim()
+                var room = lessonStr.split("<br>")[0]
+                formatCellToChange(holder)
+                holder.itemLesson.text = lessonName
+                holder.itemTeacherView.text = teacher
+                if (this.room != null) {
+                    room = this.room!!
+                    this.room = null
                 }
-            } else {
-                //For teacher
-                if (isTZ(lesson)) {
-                    formatCellToChange(holder)
-                    if (isTZnewCab(lesson)){
-                        print(lesson)
-                        lesson = lesson.replace("Увага! Заняття перенесено у іншу аудиторію","")
-                        val room = lesson.split("!")[0]
-                        lesson = lesson.replace("$room!", "")
-                        holder.itemCabNum.text = room
+                holder.itemCabNum.text = room
+                Log.i("timetable", "${holder.itemLessonStart.text}) - change with lesson name with cab found")
+                return
+            }
+        }
+        isStudentChangeWithLessonNameWoCab(lesson, holder)
+    }
 
-                        if (isTZcancel(lesson)) {
-                            print(lesson)
-                            holder.itemLesson.text = "Заняття відмінено"
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        } else if (isTZforNewTeacher(lesson)) {
-                            print(lesson)
-                            lesson = lesson.replace("Увага! Цей викладач на заміні! Замість викладача ","").trim()
-                            val teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}.".trim()
-                            lesson = lesson.replace(teacher,"").trim()
-                            val group = lesson.split("<br>")[0]
-                            lesson = lesson.replace("${group}<br>","").replace("<br>","").replace("<div class='link'> </div>","").trim()
-                            holder.itemLesson.text = lesson
-                            holder.itemTeacherView.text = teacher
-                        } else if (isTZforOldTeacher(lesson)) {
-                            print(lesson)
-                            lesson = lesson.replace("Увага! Заміна!","")
-                            val newLesson = lesson.split("замість:")[0]
-                            val newTeacher = "${lesson.split(".")[0]}.${newLesson.split(".")[1]}.".trim()
-                            holder.itemLesson.text = "Замість вас на заміні $newTeacher"
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        } else {
-                            holder.itemLesson.text = lesson.replace("<br>","").replace("<div class='link'> </div>", "").trim()
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        }
-                    } else {
-                        if (isTZcancel(lesson)) {
-                            print(lesson)
-                            holder.itemLesson.text = "Заняття відмінено"
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        } else if (isTZforNewTeacher(lesson)) {
-                            print(lesson)
-                            if (lesson.split("<br>").count()-1 == 3) {
-                                val room = lesson.split("<br>")[0]
-                                lesson = lesson.replace("$room<br>","").trim()
-                                lesson = lesson.replace("Увага! Цей викладач на заміні! Замість викладача ","").trim()
-                                val teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}.".trim()
-                                lesson = lesson.replace(teacher,"").trim()
-                                val group = lesson.split("<br>")[0]
-                                lesson = lesson.replace("$group<br>","")
-                                            .replace("<br>","")
-                                            .replace("<div class='link'> </div>","").trim()
-                                holder.itemLesson.text = lesson
-                                holder.itemTeacherView.text = teacher
-                                holder.itemCabNum.text = room
-                            } else {
-                                holder.itemLesson.text = lesson.replace("<br>","").replace("<div class='link'> </div>","").trim()
-                                holder.cabImage.isVisible = false
-                                holder.teacherImage.isVisible = false
-                                holder.itemCabNum.text = ""
-                                holder.itemTeacherView.text = ""
-                            }
-                        } else if (isTZforOldTeacher(lesson)) {
-                            print(lesson)
-                            lesson = lesson.replace("Увага! Заміна!","")
-                            val newLesson = lesson.split("замість:")[0]
-                            val newTeacher = "${lesson.split(".")[0]}.${newLesson.split(".")[1]}.".trim()
-                            holder.itemLesson.text = "Замість вас на заміні $newTeacher"
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        } else {
-                            holder.itemLesson.text = lesson.replace("<br>","").replace("<div class='link'> </div>","").trim()
-                            holder.cabImage.isVisible = false
-                            holder.teacherImage.isVisible = false
-                            holder.itemCabNum.text = ""
-                            holder.itemTeacherView.text = ""
-                        }
-
-                    }
+    fun isStudentChangeWithLessonNameWoCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заміна!") && lesson.contains("замість:") && lesson.split("<br>").count() == 2) {
+            var lessonStr = lesson.replace("Увага! Заміна!", "").trim()
+            val teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "").trim()
+            val lessonName = lessonStr.split("замість:")[0].trim()
+            if (lessonName != "") {
+                formatCellToChange(holder)
+                holder.itemLesson.text = lessonName
+                holder.itemTeacherView.text = teacher
+                if (this.room != null) {
+                    holder.itemLesson.text = this.room!!
+                    this.room = null
                 } else {
-                    //formatCellToLesson(cell: cell)
-                    formatCellToLesson(holder)
-                    if (isT2(lesson) || isT1(lesson, isStudent)) {
-                        val room = lesson.split("<br>")[0]
-                        lesson = lesson.replace("$room<br>","").trim()
-                        val group = lesson.split("<br>")[0]
-                        lesson = lesson.replace("$group<br>","")
-                        lesson = lesson.split("<br>")[0]
-                        val lesson = lesson.replace("<br>","").trim()
-                        print("lesson: $lesson")
-                        holder.itemLesson.text = lesson
-                        print("group: $group")
-                        holder.itemTeacherView.text = group
-                        print("room: $room")
-                        holder.itemCabNum.text = room
-                    } else {
-                        holder.itemLesson.text = lesson.replace("<br>","").trim()
-                        holder.cabImage.isVisible = false
-                        holder.teacherImage.isVisible = false
-                        holder.itemCabNum.isVisible = false
-                        holder.itemTeacherView.isVisible = false
-                    }
+                    // check if cell getting vissible on the next time
+                    holder.itemLesson.isVisible = false
+                    holder.itemCabNum.isVisible = false
                 }
+                Log.i("tiemtable", "${holder.itemLessonStart.text} - change with lesson name and without cab found")
+                return
             }
         }
+        isStudentChangeWithoutLessonNameWithCab(lesson, holder)
     }
 
-    private fun isT1(lesson: String, isStudent: Boolean): Boolean {
-        return if (isStudent) {
-            if (lesson.split("<br>").count()-1 == 2 && !lesson.contains("підгр.")) {
-                Log.i("LessonStatus", "t1 student")
-                true
+    fun isStudentChangeWithoutLessonNameWithCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заміна!") && lesson.contains("замість:") && lesson.split("<br>").count() == 3) {
+            var lessonStr = lesson.replace("Увага! Заміна!", "").trim()
+            val teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "").trim()
+            val lessonName = lessonStr.split("замість:")[0].trim()
+            if (lessonName == "") {
+                formatCellToChange(holder)
+                lessonStr = lessonStr.replace("замість:", "")
+                val oldTeacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+                lessonStr = lessonStr.replace(oldTeacher, "").trim()
+                val room = lessonStr.split("<br>")[0].trim()
+                val lesson = lessonStr.split("<br>")[1].replace("<br>", "").trim()
+                holder.itemLesson.text = lesson
+                holder.itemTeacherView.text = teacher
+                holder.itemCabNum.text = room
+                if (this.room != null) {
+                    holder.itemCabNum.text = room
+                    this.room = null
+                }
+                Log.i("timetable", "${holder.itemLessonStart.text} - change wo lesson name with cab found")
+                return
+            }
+        }
+        isStudentChangeWithoutLessonNameWoCab(lesson, holder)
+    }
+
+    fun isStudentChangeWithoutLessonNameWoCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заміна!") && lesson.contains("замість:") && lesson.split("<br>").count() == 2) {
+            var lessonStr = lesson.replace( "Увага! Заміна!", "").trim()
+            val teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "").trim()
+            val lessonName = lessonStr.split("замість:")[0].trim()
+            if (lessonName == "") {
+                formatCellToChange(holder)
+                lessonStr = lessonStr.replace("замість:", "")
+                val oldTeacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+                lessonStr = lessonStr.replace(oldTeacher, "").trim()
+                val room = lessonStr.split("<br>")[0].trim()
+                val lesson = lessonStr.split("<br>")[1].replace("<br>", "").trim()
+                holder.itemLesson.text = lesson
+                holder.itemTeacherView.text = teacher
+                holder.itemCabNum.text = room
+                if (this.room != null) {
+                    holder.itemCabNum.text = this.room!!
+                    this.room = null
+                } else {
+                    holder.itemCabNum.isVisible = false
+                    holder.cabImage.isVisible = false
+                }
+                Log.i("timetable","${holder.itemLessonStart.text} - change wo lesson name wo cab found")
+                return
+            }
+        }
+        isStudentChangeCanceled(lesson, holder)
+    }
+
+    fun isStudentChangeCanceled(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заняття відмінено!")) {
+            formatCellToChange(holder)
+            holder.itemLesson.text = "Заняття відмінено"
+            holder.itemCabNum.isVisible = false
+            holder.itemTeacherView.isVisible = false
+            holder.cabImage.isVisible = false
+            holder.teacherImage.isVisible = false
+            Log.i("timetable", "${holder.itemLessonStart.text} - change canceled found")
+            return
+        }
+        isStudentSubgroupLessonWithCab(lesson, holder)
+    }
+
+    fun isStudentSubgroupLessonWithCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("(підгр.") && lesson.split("<br>").count() == 4) {
+            var room = lesson.split("<br>")[0]
+            var lessonStr = lesson.replace("$room<br>", "").trim()
+            var teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "")
+            teacher = teacher.replace("(підгр. 1)", "").replace("(підгр. 2)", "").trim()
+            val lessonName = lessonStr.split("<br>")[1].trim().replace( "<br>", "")
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemCabNum.text = room
+            holder.itemTeacherView.text = teacher
+            Log.i("timetable", "${holder.itemLessonStart.text} - subgroup lesson with cab found")
+            return
+        }
+        isStudentSubgroupLessonWoCab(lesson, holder)
+    }
+
+    fun isStudentSubgroupLessonWoCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("(підгр.") && lesson.split("<br>").count() == 3) {
+            var teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}."
+            val lessonStr = lesson.replace(teacher, "")
+            teacher = teacher.replace("(підгр. 1)", "").replace("(підгр. 2)", "").trim()
+            val lessonName = lessonStr.split("<br>")[1].trim().replace("<br>", "")
+            if (this.room != null) {
+                holder.itemLesson.text = this.room!!
+                this.room = null
             } else {
-                false
+                holder.itemCabNum.isVisible = false
+                holder.cabImage.isVisible = false
             }
-        } else {
-            if (lesson.split("<br>").count()-1 == 3 && !lesson.contains("підгр.")) {
-                Log.i("LessonStatus", "t1 teacher")
-                true
+            holder.itemLesson.text = lessonName
+            holder.itemTeacherView.text = teacher
+            Log.i("timetable","${holder.itemLessonStart.text} - subgroup lesson without cab found")
+            return
+        }
+        isStudentDefaultLessonWithCab(lesson, holder)
+    }
+
+    fun isStudentDefaultLessonWithCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.split("<br>").count() == 3) {
+            var room = lesson.split("<br>")[0]
+            var lessonStr = lesson.replace("$room<br>", "").trim()
+            val teacher = "${lessonStr.split( ".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "")
+            val lessonName = lessonStr.replace("<br>", "").trim()
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemTeacherView.text = teacher
+            holder.itemCabNum.text = room
+            Log.i("timetable","${holder.itemLessonStart.text} - default lesson with cab found")
+            return
+        }
+        isStudentDefaultLessonWoCab(lesson, holder)
+    }
+
+    fun isStudentDefaultLessonWoCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.split("<br>").count() == 2) {
+            val teacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}."
+            val lessonStr = lesson.replace(teacher, "")
+            val lessonName = lessonStr.replace("<br>", "").trim()
+            var room: String? = null
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            if (room != null) {
+                holder.itemCabNum.text = room
             } else {
-                false
+                holder.cabImage.isVisible = false
+                holder.itemCabNum.isVisible = false
             }
+            holder.itemTeacherView.text = teacher
+            Log.i("timetable", "${holder.itemLessonStart.text} - default lesson wo cab found")
+            return
         }
+        putEverythingInline(lesson, holder)
     }
 
-    private fun isT2(lesson: String): Boolean {
-        //identical for teacher
-        return if (lesson.split("<br>").count()-1 == 3 && lesson.split("підгр.").count()-1 == 1) {
-            Log.i("LessonStatus", "t2")
-            true
-        } else {
-            false
-        }
+    fun putEverythingInline(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //put inline deleting occurances of tags
+        Log.i("timetable", "${holder.itemLessonStart.text} - occurances not found")
+        val lessonName = lesson.replace("<br>", "").trim()
+        holder.itemLesson.text = lessonName
+        holder.itemCabNum.isVisible = false
+        holder.itemTeacherView.isVisible = false
+        holder.cabImage.isVisible = false
+        holder.teacherImage.isVisible = false
     }
 
-    private fun isT3(lesson: String): Boolean {
-        return if (lesson.split("<br>").count()-1 == 7 && lesson.split("підгр.").count()-1 == 2) {
-            Log.i("LessonStatus", "t3")
-            true
-        } else {
-            false
+    //MARK: Teacher declaration
+
+    fun isTeacherRoomChange(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes, remember new room
+        if (lesson.contains("Увага! Заняття перенесено у іншу аудиторію")) {
+            val lessonStr = lesson.replace("Увага! Заняття перенесено у іншу аудиторію", "")
+            val room = lessonStr.split("!")[0].trim()
+            this.room = room
+            formatCellToChange(holder)
+            Log.i("timetable","${holder.itemLessonStart.text} - teacher room change found")
+            isTeacherChanged(lessonStr.replace("$room!", "").trim(), holder)
+            return
         }
+        isTeacherChanged(lesson, holder)
     }
 
-    private fun isTZ(lesson: String): Boolean {
-        return if (lesson.contains("Увага!", false)) {
-            true
-        } else {
-            false
+    fun isTeacherChanged(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Заміна! Заняття проведе інший викладач:") && lesson.split("<br>").count() == 3) {
+            var lessonStr = lesson.replace("Увага! Заміна! Заняття проведе інший викладач:", "")
+            val teacher = "${lessonStr.split(".")[0]}.${lessonStr.split(".")[1]}."
+            lessonStr = lessonStr.replace(teacher, "").trim()
+            val group = lessonStr.split("<br>")[0]
+            lessonStr = lessonStr.replace("$group<br>", "").trim()
+            val lessonName = lessonStr.split("<br>")[0]
+            var room: String? = null
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemTeacherView.text = group
+            if (room != null) {
+                holder.itemCabNum.text = room
+            } else {
+                holder.cabImage.isVisible = false
+                holder.itemCabNum.isVisible = false
+            }
+            Log.i("timetable","${holder.itemLessonStart.text} - teacher changed found")
+            return
         }
+        isTeacherChanges(lesson, holder)
     }
 
-    private fun isTZcancel(lesson: String): Boolean {
-        return if (lesson.contains("Заняття відмінено!", false)) {
-            Log.i("LessonStatus", "tz cancel")
-            true
-        } else {
-            false
+    fun isTeacherChanges(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.contains("Увага! Цей викладач на заміні! Замість викладача") && lesson.split("<br>").count() == 3) {
+            val oldTeacher = "${lesson.split(".")[0]}.${lesson.split(".")[1]}."
+            var lessonStr = lesson.replace(oldTeacher, "").trim()
+            val group = lessonStr.split("<br>")[0].trim()
+            lessonStr = lessonStr.replace("$group<br>", "")
+            val lessonName = lessonStr.split("<br>")[0].trim()
+            var room: String? = null
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemTeacherView.text = group
+            if (room != null) {
+                holder.itemCabNum.text = room
+            } else {
+                holder.itemCabNum.isVisible = false
+                holder.cabImage.isVisible = false
+            }
+            Log.i("timetable","${holder.itemLessonStart.text} - teacher changes found")
+            return
         }
+        isTeacherDefaultLessonWithCab(lesson, holder)
     }
 
-    private fun isTZnewCab(lesson: String): Boolean {
-        return if (lesson.split("Заняття перенесено у іншу аудиторію").count()-1 == 1 && (lesson.split("!").count()-1) >= 2) {
-            Log.i("LessonStatus", "tz new cab")
-            true
-        } else {
-            false
+    fun isTeacherDefaultLessonWithCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.split("<br>").count() == 4) {
+            var room = lesson.split("<br>")[0].trim()
+            var lessonStr = lesson.replace("$room<br>", "")
+            val group = lessonStr.split("<br>")[0].trim()
+            lessonStr = lessonStr.replace("$group <br>", "").replace("$group<br>", "")
+            val lessonName = lessonStr.split("<br>")[0].trim()
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemCabNum.text = room
+            holder.itemTeacherView.text = group
+            Log.i("timetable","${holder.itemLessonStart.text} - teacher lesson with cab found")
+            return
         }
+        isTeacherDefaultLessonWoCab(lesson, holder)
     }
 
-    private fun isTZforNewTeacher(lesson: String): Boolean {
-        return if (lesson.split("Цей викладач на заміні!").count()-1 == 1) {
-            Log.i("LessonStatus", "tz for new teacher")
-            true
-        } else {
-            false
+    fun isTeacherDefaultLessonWoCab(lesson: String, holder: TimetableRecyclerAdapter.ViewHolder) {
+        //if yes result, write and return
+        if (lesson.split("<br>").count() == 3) {
+            val group = lesson.split("<br>")[0].trim()
+            val lessonStr = lesson.replace("$group <br>", "").replace("$group<br>", "")
+            val lessonName = lessonStr.split("<br>")[0].trim()
+            var room: String? = null
+            if (this.room != null) {
+                room = this.room!!
+                this.room = null
+            }
+            holder.itemLesson.text = lessonName
+            holder.itemTeacherView.text = group
+            if (room != null) {
+                holder.itemCabNum.text = room
+            } else {
+                holder.cabImage.isVisible = false
+                holder.itemCabNum.isVisible = false
+            }
+            Log.i("timetable","${holder.itemLessonStart.text} - teacher lesson wo cab found")
+            return
         }
+        putEverythingInline(lesson, holder)
     }
 
-    private fun isTZforOldTeacher(lesson: String): Boolean {
-        return if (lesson.contains("Увага! Заміна!", false)) {
-            Log.i("LessonStatus", "tz for old teacher")
-            true
-        } else {
-            false
-        }
-    }
-
-    fun isTZforStudent(lesson: String): Boolean {
-        return if (lesson.contains("Увага! Заміна!", false)) {
-            Log.i("LessonStatus", "tz for student")
-            true
-        } else {
-            false
-        }
-    }
-
-    private fun isBigChangeForStudent(lesson: String): Boolean{
-        return if (lesson.contains("<br> <br>", false)) {
-            Log.i("LessonStatus", "big change ofr student")
-            true
-        } else {
-            false
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return lessonDescription.size
-    }
 }

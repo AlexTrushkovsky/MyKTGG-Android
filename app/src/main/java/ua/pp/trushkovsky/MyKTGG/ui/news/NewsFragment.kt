@@ -6,7 +6,7 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_news.*
-import kotlinx.android.synthetic.main.fragment_news.rv_main_recycler
+import kotlinx.android.synthetic.main.fragment_news.bootomSheetRecycler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -58,8 +58,8 @@ class NewsFragment: Fragment() {
     }
 
     private fun setUpRecyclerView() {
-        rv_main_recycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        rv_main_recycler.adapter = RecyclerAdapter(
+        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        bootomSheetRecycler.adapter = RecyclerAdapter(
             categoryList,
             dateList,
             imagesList,

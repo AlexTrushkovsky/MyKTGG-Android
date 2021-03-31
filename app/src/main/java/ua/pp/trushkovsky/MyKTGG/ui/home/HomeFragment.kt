@@ -3,28 +3,28 @@ package ua.pp.trushkovsky.MyKTGG.ui.home
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
+import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnItemDragListener
+import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnItemSwipeListener
+import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnListScrollListener
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mahc.custombottomsheetbehavior.BottomSheetBehaviorGoogleMapsLike
 import kotlinx.android.synthetic.main.bottom_sheet_content.*
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_news.*
-import kotlinx.android.synthetic.main.fragment_news.rv_main_recycler
-import kotlinx.android.synthetic.main.fragment_timetable.*
+import kotlinx.android.synthetic.main.fragment_news.bootomSheetRecycler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -32,17 +32,15 @@ import kotlinx.coroutines.withContext
 import okhttp3.*
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
+import ua.pp.trushkovsky.MyKTGG.ui.home.model.Pushes
 import ua.pp.trushkovsky.MyKTGG.ui.home.weather.WeatherModel
-import ua.pp.trushkovsky.MyKTGG.ui.settings.saveStringToSharedPreferences
 import java.io.IOException
 import java.lang.reflect.Type
+import kotlin.math.roundToInt
 
 
 class HomeFragment : Fragment() {
-
-    private var titleList = mutableListOf<String>()
-    private var textList = mutableListOf<String>()
-    private var imageList = mutableListOf<String>()
+    private var pushes = mutableListOf<Pushes>()
 
     private var temp = String()
     private var desk = String()
@@ -55,15 +53,6 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
-    }
-
-    @SuppressLint("CommitPrefEdits")
-    fun getListOfPushes(): List<List<String>>? {
-        val sharedPreferences: SharedPreferences = activity?.getSharedPreferences("default", Context.MODE_PRIVATE) ?: return null
-        val editor = sharedPreferences.edit()
-        val serializedObject = sharedPreferences.getString("PushList", null)
-        val type: Type = object : TypeToken<List<List<String>>>() {}.type
-        return Gson().fromJson<List<List<String>>>(serializedObject, type)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,46 +77,30 @@ class HomeFragment : Fragment() {
         val behavior = BottomSheetBehaviorGoogleMapsLike.from(bottom_sheet)
         behavior.isCollapsible = false
 
-        mainSwipeRefresh?.setOnRefreshListener {
-            clearList()
-        }
     }
 
     private fun addToList(
         title: String,
         text: String,
-        image: String
+        image: String,
+        date: String?
     ) {
-        titleList.add(title)
-        textList.add(text)
-        imageList.add(image)
-    }
-
-    private fun clearList() {
-        saveStringToSharedPreferences("PushList", "", activity)
-        titleList.clear()
-        textList.clear()
-        imageList.clear()
-        setUpRecyclerView()
-        main_no_pushes_title.isVisible = true
-        mainSwipeRefresh?.stopRefreshing()
+        pushes.add(Pushes(title, text, image, date))
     }
 
     private fun setupBottomSheetData() {
-        val pushes = getListOfPushes()
+        val pushes = getList("PushList")
         if (pushes == null) {
-            mainSwipeRefresh.isVisible = false
-            main_no_pushes_title.isVisible = true
+            main_no_pushes_title?.alpha = 1f
         } else {
             for (push in pushes) {
-                if (push.size > 1) {
-                    val title = push[0]
-                    val text = push[1]
-                    val image = push[2]
-                    addToList(title, text, image)
-                }
+                val title = push.title
+                val text = push.subtitle
+                val image = push.image
+                val date = push.date
+                addToList(title, text, image, date)
             }
-            if (titleList.size != 0) main_no_pushes_title.isVisible = false
+            if (pushes.isNotEmpty()) main_no_pushes_title?.alpha = 0f
             setUpRecyclerView()
         }
     }
@@ -184,8 +157,54 @@ class HomeFragment : Fragment() {
             })
     }
 
+    private val onItemSwipeListener = object : OnItemSwipeListener<Pushes> {
+        override fun onItemSwiped(position: Int, direction: OnItemSwipeListener.SwipeDirection, item: Pushes): Boolean {
+            val pushes = getList("PushList") as? MutableList<Pushes> ?: return true
+            pushes.removeAt(position)
+            if (pushes.isEmpty()) {
+                main_no_pushes_title?.alpha = 1f
+            }
+            setList("PushList", pushes)
+            return false
+        }
+    }
+
     private fun setUpRecyclerView() {
-        rv_main_recycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        rv_main_recycler.adapter = RecyclerAdapter(titleList, textList, imageList)
+        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        val recycler = bootomSheetRecycler as? DragDropSwipeRecyclerView ?: return
+        recycler.adapter = MainRecyclerAdapter(pushes)
+        recycler.orientation = DragDropSwipeRecyclerView.ListOrientation.VERTICAL_LIST_WITH_VERTICAL_DRAGGING
+        recycler.swipeListener = onItemSwipeListener
+        recycler.disableDragDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.RIGHT)
+        recycler.disableSwipeDirection(DragDropSwipeRecyclerView.ListOrientation.DirectionFlag.RIGHT)
+        recycler.layoutManager = LinearLayoutManager(activity)
+    }
+
+    fun setList(key: String, list: List<Pushes>) {
+        val json = Gson().toJson(list)
+        set(key, json)
+    }
+
+    operator fun set(key: String?, value: String?) {
+        val context = context ?: return
+        val sharedPreferences = context.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getList(key: String): List<Pushes>? {
+        val context = context ?: return null
+        val sharedPreferences = context.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val serializedObject = sharedPreferences.getString(key, null) ?: return null
+        val type = object : TypeToken<List<Pushes>>() {}.type ?: return null
+        var list: List<Pushes>? = null
+        try {
+          list = Gson().fromJson<List<Pushes>>(serializedObject, type) ?: return null
+        } catch (e: java.lang.Exception) {
+            Log.e("getList", "Failed to get list: $e")
+            return null
+        }
+        return list
     }
 }

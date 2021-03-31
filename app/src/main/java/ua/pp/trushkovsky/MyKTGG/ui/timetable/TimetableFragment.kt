@@ -46,13 +46,9 @@ import java.util.*
 
 class TimetableFragment: Fragment(){
 
-    private var groupList= mutableListOf<String>()
     private var dateList= mutableListOf<String>()
-    private var commentList= mutableListOf<String>()
-    private var lessonNameList= mutableListOf<String>()
     private var lessonTimeList= mutableListOf<String>()
     private var lessonDescriptionList= mutableListOf<String>()
-    private var lessonNumberList= mutableListOf<String>()
 
     private val calendar = Calendar.getInstance()
     private var currentYear = 0
@@ -77,7 +73,7 @@ class TimetableFragment: Fragment(){
             getData()
         }
 
-        rv_main_recycler.setOnTouchListener(object: OnSwipeTouchListener(activity) {
+        bootomSheetRecycler.setOnTouchListener(object: OnSwipeTouchListener(activity) {
             override fun onSwipeRight() {
                 val positions = datePickerView.getSelectedIndexes()
                 if (positions.count() >= 0) {
@@ -256,41 +252,45 @@ class TimetableFragment: Fragment(){
     private fun setUpRecyclerView() {
         val subgroup = getIntFromSharedPreferences("subgroup", activity)
         val isStudent = getBoolFromSharedPreferences("isStudent", activity)
-        rv_main_recycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        rv_main_recycler.adapter = TimetableRecyclerAdapter(isStudent, pickedDate, subgroup, groupList, dateList, commentList, lessonNameList, lessonTimeList, lessonDescriptionList, lessonNumberList)
+        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        bootomSheetRecycler.adapter = TimetableRecyclerAdapter(isStudent, subgroup, dateList, lessonTimeList, lessonDescriptionList)
     }
 
     private fun addToList(
-        group: String,
         date: String,
-        comment: String,
-        lessonName: String,
         lessonTime: String,
         lessonDescription: String,
-        lessonNumber: String
+        isStudent: Boolean,
+        subGroup: Int
     ) {
-        if (lessonDescription != "") {
-            groupList.add(group)
-            dateList.add(date)
-            commentList.add(comment)
-            lessonNameList.add(lessonName)
-            lessonTimeList.add(lessonTime)
-            lessonDescriptionList.add(lessonDescription)
-            lessonNumberList.add(lessonNumber)
+        if (isStudent) {
+            if (subGroup == 0) {
+                    if (lessonDescription.contains("(підгр. 2)")) {
+                        if (!lessonDescription.contains("(підгр. 1)")) {
+                            return
+                        }
+                    }
+            } else if (subGroup == 1) {
+                    if (lessonDescription.contains("(підгр. 1)")) {
+                        if (!lessonDescription.contains("(підгр. 2)")) {
+                            return
+                        }
+                    }
+            }
         }
+
+        dateList.add(date)
+        lessonTimeList.add(lessonTime)
+        lessonDescriptionList.add(lessonDescription)
     }
 
     private fun deinitModel() {
         val size = lessonDescriptionList.size
-        groupList.clear()
         dateList.clear()
-        commentList.clear()
-        lessonNameList.clear()
         lessonTimeList.clear()
         lessonDescriptionList.clear()
-        lessonNumberList.clear()
-        rv_main_recycler?.removeAllViews()
-        rv_main_recycler?.adapter?.notifyItemRangeRemoved(0, size)
+        bootomSheetRecycler?.removeAllViews()
+        bootomSheetRecycler?.adapter?.notifyItemRangeRemoved(0, size)
     }
 
     private fun formatJson(str: String): String {
@@ -317,6 +317,7 @@ class TimetableFragment: Fragment(){
         }
         val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy")
         var encodedGroup = java.net.URLEncoder.encode(group, "windows-1251")
+        encodedGroup = encodedGroup.replace(".", "%2E").replace("+", "%20").replace("-", "%2D")
         val stringPickedDate = simpleDateFormat.format(pickedDate)
         val url = "http://app.ktgg.kiev.ua/cgi-bin/timetable_export.cgi?req_type=rozklad&req_mode=$mode&req_format=json&begin_date=$stringPickedDate&end_date=$stringPickedDate&bs=ok&OBJ_name=$encodedGroup"
         Log.e("Timetable", "Trying to get data from $url")
@@ -335,34 +336,29 @@ class TimetableFragment: Fragment(){
                         val item = timetableRoot.item ?: return
                         for (timetable in item) {
                             if (timetable.lesson_description != null &&
-                                timetable.lesson_name != null &&
+                                timetable.lesson_description != "" &&
                                 timetable.lesson_time != null &&
-                                timetable.group != null &&
-                                timetable.date != null &&
-                                timetable.comment != null &&
-                                timetable.lesson_number != null
+                                timetable.date != null
                             ) {
                                 addToList(
-                                    timetable.group,
                                     timetable.date,
-                                    timetable.comment,
-                                    timetable.lesson_name,
                                     timetable.lesson_time,
                                     timetable.lesson_description,
-                                    timetable.lesson_number
+                                    isStudent,
+                                    subgroup
                                 )
                             }
                         }
                         GlobalScope.launch(Dispatchers.Main) {
                             noLessonImage.isVisible = lessonDescriptionList.isEmpty()
-                            if (rv_main_recycler != null) {
-                                if (rv_main_recycler.adapter != null) {
-                                    rv_main_recycler.adapter?.notifyItemRangeChanged(0, lessonDescriptionList.size)
+                            if (bootomSheetRecycler != null) {
+                                if (bootomSheetRecycler.adapter != null) {
+                                    bootomSheetRecycler.adapter?.notifyItemRangeChanged(0, lessonDescriptionList.size)
                                 } else {
                                     setUpRecyclerView()
                                 }
                             }
-                            Log.e("timetable", "refreshing tiemtable")
+                            Log.e("timetable", "refreshing timetable")
                             timetableSwipeRefresh.isRefreshing = false
                         }
 

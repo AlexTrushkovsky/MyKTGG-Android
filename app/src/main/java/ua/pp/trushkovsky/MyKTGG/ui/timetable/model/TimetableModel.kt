@@ -5,11 +5,7 @@ data class TimetableRoot (
 )
 
 data class Item (
-    val group: String?,
     val date: String?,
-    val comment: String?,
-    val lesson_number: String?,
-    val lesson_name: String?,
     val lesson_time: String?,
     val lesson_description: String?
 )

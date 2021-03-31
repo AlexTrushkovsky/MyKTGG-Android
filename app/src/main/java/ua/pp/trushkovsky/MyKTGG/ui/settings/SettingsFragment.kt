@@ -18,6 +18,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
+import com.facebook.FacebookSdk.getApplicationContext
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -78,10 +79,10 @@ class SettingsFragment : Fragment() {
             Firebase.messaging.subscribeToTopic("changesOf$transliterated").addOnCompleteListener {
                 if (it.isSuccessful) {
                     saveStringToSharedPreferences("changesPush", group, context)
-                    val toast = Toast.makeText(context, "Тепер вам будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
+                    val toast = Toast.makeText(getApplicationContext(), "Тепер вам будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
                     toast.show()
                 } else {
-                    val toast = Toast.makeText(context, "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
+                    val toast = Toast.makeText(getApplicationContext(), "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
                     toast.show()
                 }
             }
