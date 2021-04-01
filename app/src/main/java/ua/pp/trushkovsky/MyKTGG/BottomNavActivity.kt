@@ -27,7 +27,7 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
         super.onCreate(savedInstanceState)
         verifyUserLoggedIn()
         checkUserGroup()
-        subscribeToNews()
+        //subscribeToNews()
         setContentView(R.layout.activity_bottom_nav)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)

@@ -1,14 +1,12 @@
 package ua.pp.trushkovsky.MyKTGG.ui.timetable
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,9 +25,7 @@ import com.michalsvec.singlerowcalendar.utils.DateUtils
 import kotlinx.android.synthetic.main.calendar_item.view.*
 import kotlinx.android.synthetic.main.fragment_timetable.*
 import kotlinx.android.synthetic.main.fragment_timetable.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.*
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.R.drawable.round_button_green
@@ -39,12 +35,14 @@ import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
 import ua.pp.trushkovsky.MyKTGG.ui.settings.*
 import ua.pp.trushkovsky.MyKTGG.ui.timetable.api.TimetableRecyclerAdapter
 import ua.pp.trushkovsky.MyKTGG.ui.timetable.model.TimetableRoot
-import java.io.IOException
+import java.lang.Exception
+import java.net.SocketException
+import java.net.UnknownHostException
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TimetableFragment: Fragment(){
+class TimetableFragment: Fragment(), CoroutineScope by MainScope() {
 
     private var dateList= mutableListOf<String>()
     private var lessonTimeList= mutableListOf<String>()
@@ -55,11 +53,17 @@ class TimetableFragment: Fragment(){
 
     private var pickedDate = Date()
 
+    private val client = OkHttpClient()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_timetable, container, false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onDestroy() {
+        super.onDestroy()
+        cancel()
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -68,9 +72,11 @@ class TimetableFragment: Fragment(){
         todayButton.setOnClickListener {
             pickCurrentDate()
         }
-
+        client.dispatcher().maxRequests = 1
         timetableSwipeRefresh.setOnRefreshListener {
-            getData()
+            launch {
+                getData()
+            }
         }
 
         bootomSheetRecycler.setOnTouchListener(object: OnSwipeTouchListener(activity) {
@@ -112,10 +118,13 @@ class TimetableFragment: Fragment(){
 
         val myCalendarChangesObserver = object : CalendarChangesObserver {
             override fun whenSelectionChanged(isSelected: Boolean, position: Int, date: Date) {
-                if (date == pickedDate) return
+                if (date.day == pickedDate.day && date.month == pickedDate.month && date.year == pickedDate.year) return
+
                 Log.e("DatePicker", "picked new date... $date")
                 pickedDate = date
-                getData()
+                launch {
+                    getData()
+                }
                 dayNumView.text = DateUtils.getDayNumber(date)
                 weekDayView.text = dayOfWeekToString(date.day)
                 monthYearView.text = "${monthNumToString(date.month)} ${DateUtils.getYear(date)}"
@@ -140,7 +149,7 @@ class TimetableFragment: Fragment(){
             }
         }
 
-        val singleRowCalendar = datePickerView.apply {
+        datePickerView?.apply {
             calendarViewManager = myCalendarViewManager
             calendarChangesObserver = myCalendarChangesObserver
             calendarSelectionManager = mySelectionManager
@@ -153,7 +162,8 @@ class TimetableFragment: Fragment(){
         }
     }
 
-    private fun getData() {
+    private suspend fun getData() {
+        timetableSwipeRefresh.isRefreshing = true
         var group = getStringFromSharedPreferences("group", activity)
         if (group == "") {
             val userID = Firebase.auth.currentUser?.uid
@@ -195,8 +205,43 @@ class TimetableFragment: Fragment(){
             }
         }
         val isStudent = getBoolFromSharedPreferences("isStudent", activity)
-        timetableSwipeRefresh.isRefreshing = true
-        fetchData(pickedDate, group, subgroup, isStudent)
+
+        val animation = AnimationUtils.loadAnimation(context, R.anim.slide_up)
+        animation.repeatCount = 100
+        datePickerView?.view?.startAnimation(animation)
+        client.dispatcher().cancelAll()
+        val answer = fetchData(pickedDate, group, isStudent)
+        val e = answer.second
+        val string = answer.first
+        if (e == null) {
+            if (string != null) {
+                val gson = GsonBuilder().create() ?: return
+                val timetableRoot = gson.fromJson(string, TimetableRoot::class.java)
+                val item = timetableRoot.item ?: return
+                deinitModel()
+                for (timetable in item) {
+                    if (timetable.lesson_description != null &&
+                        timetable.lesson_description != "" &&
+                        timetable.lesson_time != null &&
+                        timetable.date != null) {
+                        addToList(timetable.date, timetable.lesson_time, timetable.lesson_description, isStudent, subgroup)
+                    }
+                }
+                noLessonImage?.isVisible = lessonDescriptionList.isEmpty()
+                if (bootomSheetRecycler?.adapter != null) {
+                    bootomSheetRecycler?.adapter?.notifyItemRangeChanged(0, lessonDescriptionList.size)
+                } else {
+                    setUpRecyclerView()
+                }
+                Log.e("timetable", "refreshing timetable")
+                timetableSwipeRefresh?.isRefreshing = false
+            }
+        } else {
+            activity?.runOnUiThread {
+                showDialogWith("Відсутнє з'єдняння з мережею", "$e, пeперевірте з'єднання, або спробуйте будь ласка пізніше", context, timetableSwipeRefresh)
+            }
+            timetableSwipeRefresh?.isRefreshing = false
+        }
     }
 
     private fun pickCurrentDate() {
@@ -252,8 +297,8 @@ class TimetableFragment: Fragment(){
     private fun setUpRecyclerView() {
         val subgroup = getIntFromSharedPreferences("subgroup", activity)
         val isStudent = getBoolFromSharedPreferences("isStudent", activity)
-        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        bootomSheetRecycler.adapter = TimetableRecyclerAdapter(isStudent, subgroup, dateList, lessonTimeList, lessonDescriptionList)
+        bootomSheetRecycler?.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        bootomSheetRecycler?.adapter = TimetableRecyclerAdapter(isStudent, subgroup, dateList, lessonTimeList, lessonDescriptionList)
     }
 
     private fun addToList(
@@ -305,78 +350,27 @@ class TimetableFragment: Fragment(){
         return result
     }
 
-    private fun fetchData(pickedDate: Date, group: String, subgroup:Int, isStudent: Boolean) {
-        val animation = AnimationUtils.loadAnimation(context, R.anim.slide_up)
-        animation.repeatCount = 100
-        datePickerView?.view?.startAnimation(animation)
-        OkHttpClient().dispatcher().cancelAll()
-        val mode = if (isStudent) {
-            "group"
-        } else {
-            "teacher"
+    private suspend fun fetchData(pickedDate: Date, group: String, isStudent: Boolean): Pair<String?, java.lang.Exception?> {
+        return withContext(Dispatchers.Default) {
+            val mode = if (isStudent) { "group" } else { "teacher" }
+            val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy")
+            var encodedGroup = java.net.URLEncoder.encode(group, "windows-1251")
+            encodedGroup = encodedGroup.replace(".", "%2E").replace("+", "%20").replace("-", "%2D")
+            val stringPickedDate = simpleDateFormat.format(pickedDate)
+            val url = "http://app.ktgg.kiev.ua/cgi-bin/timetable_export.cgi?req_type=rozklad&req_mode=$mode&req_format=json&begin_date=$stringPickedDate&end_date=$stringPickedDate&bs=ok&OBJ_name=$encodedGroup"
+//            val url = "http://192.168.5.230/cgi-bin/timetable_export.cgi?req_type=rozklad&req_mode=$mode&req_format=json&begin_date=$stringPickedDate&end_date=$stringPickedDate&bs=ok&OBJ_name=$encodedGroup"
+            Log.e("Timetable", "Trying to get data from $url")
+            val request = Request.Builder().url(url).build()
+            try {
+                val response = client.newCall(request).execute()
+                    val body = response.body() ?: return@withContext Pair(null, null)
+                    return@withContext Pair(formatJson(body.string()), null)
+            } catch (e: UnknownHostException) {
+                Log.e("timetable", "$e")
+                return@withContext Pair(null, e)
+            } catch (e: Exception) {
+                return@withContext Pair(null, null)
+            }
         }
-        val simpleDateFormat = SimpleDateFormat("dd.MM.yyyy")
-        var encodedGroup = java.net.URLEncoder.encode(group, "windows-1251")
-        encodedGroup = encodedGroup.replace(".", "%2E").replace("+", "%20").replace("-", "%2D")
-        val stringPickedDate = simpleDateFormat.format(pickedDate)
-        val url = "http://app.ktgg.kiev.ua/cgi-bin/timetable_export.cgi?req_type=rozklad&req_mode=$mode&req_format=json&begin_date=$stringPickedDate&end_date=$stringPickedDate&bs=ok&OBJ_name=$encodedGroup"
-        Log.e("Timetable", "Trying to get data from $url")
-        val request = Request.Builder().url(url).build()
-        val client = OkHttpClient()
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    deinitModel()
-                }
-                val body = response.body()?.string() ?: return
-                val formattedJson = formatJson(body)
-                try {
-                        val gson = GsonBuilder().create() ?: return
-                        val timetableRoot = gson.fromJson(formattedJson, TimetableRoot::class.java)
-                        val item = timetableRoot.item ?: return
-                        for (timetable in item) {
-                            if (timetable.lesson_description != null &&
-                                timetable.lesson_description != "" &&
-                                timetable.lesson_time != null &&
-                                timetable.date != null
-                            ) {
-                                addToList(
-                                    timetable.date,
-                                    timetable.lesson_time,
-                                    timetable.lesson_description,
-                                    isStudent,
-                                    subgroup
-                                )
-                            }
-                        }
-                        GlobalScope.launch(Dispatchers.Main) {
-                            noLessonImage.isVisible = lessonDescriptionList.isEmpty()
-                            if (bootomSheetRecycler != null) {
-                                if (bootomSheetRecycler.adapter != null) {
-                                    bootomSheetRecycler.adapter?.notifyItemRangeChanged(0, lessonDescriptionList.size)
-                                } else {
-                                    setUpRecyclerView()
-                                }
-                            }
-                            Log.e("timetable", "refreshing timetable")
-                            timetableSwipeRefresh.isRefreshing = false
-                        }
-
-                } catch (e: Exception) {
-                    Log.e("timetable", "$e")
-                    //custom error with e
-                    activity?.runOnUiThread {
-                        showDialogWith("зверніться до техпідтримки, або спробуйте будь ласка пізніше", context, timetableSwipeRefresh, e)
-                    }
-
-                }
-            }
-            override fun onFailure(call: Call, e: IOException) {
-                print("Failed to execute request")
-                activity?.runOnUiThread {
-                    showDialogWith("Відсутнє з'єдняння з мережею", "перевірте з'єднання, або спробуйте будь ласка пізніше", context, timetableSwipeRefresh)
-                }
-            }
-        })
     }
 }
