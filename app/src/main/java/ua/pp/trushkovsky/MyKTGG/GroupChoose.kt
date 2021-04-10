@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -14,29 +15,36 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_group_choose.*
+import kotlinx.android.synthetic.main.fragment_group_choose.account_changeUserType_button
+import kotlinx.android.synthetic.main.fragment_group_choose.account_first_subgroup
+import kotlinx.android.synthetic.main.fragment_group_choose.account_group_progress
+import kotlinx.android.synthetic.main.fragment_group_choose.account_second_subgroup
 import kotlinx.android.synthetic.main.fragment_group_choose.groupPicker
+import kotlinx.android.synthetic.main.fragment_group_choose.segmentedControl
+import kotlinx.android.synthetic.main.fragment_group_choose.shadow_view
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import ua.pp.trushkovsky.MyKTGG.ui.settings.GroupNetworkController
-import ua.pp.trushkovsky.MyKTGG.ui.settings.saveBoolToSharedPreferences
-import ua.pp.trushkovsky.MyKTGG.ui.settings.saveIntToSharedPreferences
-import ua.pp.trushkovsky.MyKTGG.ui.settings.saveStringToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.getStringFromSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.saveBoolToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.saveIntToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.saveStringToSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.ui.settings.*
 
 class GroupChoose : DialogFragment() {
     private var isStudent = true
         set(value) {
             field = value
-            if (group_choose_first_subgroup != null && group_choose_second_subgroup != null) {
-                group_choose_second_subgroup.isVisible = value
-                group_choose_first_subgroup.isVisible = value
+            if (account_first_subgroup != null && account_second_subgroup != null) {
+                account_second_subgroup.isVisible = value
+                account_first_subgroup.isVisible = value
             }
-            if (group_choose_changeUserType_button != null) {
+            if (account_changeUserType_button != null) {
                 if (value) {
-                    group_choose_changeUserType_button.text = "Обрати викладача"
+                    account_changeUserType_button.text = "Обрати викладача"
                 } else {
-                    group_choose_changeUserType_button.text = "Обрати групу"
+                    account_changeUserType_button.text = "Обрати групу"
                 }
             }
             setupPickerView()
@@ -53,12 +61,13 @@ class GroupChoose : DialogFragment() {
         if (dialog != null) {
             val width = ViewGroup.LayoutParams.MATCH_PARENT
             val height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog.window!!.statusBarColor = ContextCompat.getColor(requireContext(), R.color.appLightColor)
             dialog.window!!.setLayout(width, height)
             dialog.window!!.setWindowAnimations(R.style.AppTheme_Slide)
         }
         updateUserValues()
-        group_choose_first_subgroup.isChecked = true
-        group_choose_changeUserType_button.setOnClickListener {
+        account_first_subgroup.isChecked = true
+        account_changeUserType_button.setOnClickListener {
             isStudent = !isStudent
         }
         confirm_button.setOnClickListener {
@@ -72,7 +81,11 @@ class GroupChoose : DialogFragment() {
         setupPickerView()
     }
 
-    private fun setupPickerView() {
+    fun setupPickerView() {
+        groupPicker?.isVisible = false
+        account_group_progress?.isVisible = true
+        shadow_view?.isVisible = true
+        segmentedControl?.isVisible = false
         CoroutineScope(Dispatchers.IO).async {
             val network = GroupNetworkController()
             val itemList = network.fetchData(isStudent)
@@ -80,6 +93,20 @@ class GroupChoose : DialogFragment() {
                 with(groupPicker) {
                     items = itemList
                     setSelectedItem(items[0])
+                    val currentGroup =
+                        getStringFromSharedPreferences(
+                            "group",
+                            context
+                        )
+                    for ((index, group) in items.withIndex()) {
+                        if (group.title == currentGroup) {
+                            setSelectedItem(items[index])
+                        }
+                    }
+                    segmentedControl?.isVisible = true
+                    groupPicker?.isVisible = true
+                    account_group_progress?.isVisible = false
+                    shadow_view?.isVisible = false
                 }
             }
         }
@@ -109,9 +136,9 @@ class GroupChoose : DialogFragment() {
                     }
                     if (subgroup != null) {
                         if (subgroup.toString().toInt() == 0) {
-                            group_choose_first_subgroup?.isChecked = true
+                            account_first_subgroup?.isChecked = true
                         } else {
-                            group_choose_second_subgroup?.isChecked = true
+                            account_second_subgroup?.isChecked = true
                         }
                     }
                 }
@@ -125,17 +152,31 @@ class GroupChoose : DialogFragment() {
             updateFirebaseValue("group", group)
         }
         var subgroup = 0
-        if (group_choose_first_subgroup.isChecked) {
+        if (account_first_subgroup.isChecked) {
             subgroup = 0
-        } else if (group_choose_second_subgroup.isChecked) {
+        } else if (account_second_subgroup.isChecked) {
             subgroup = 1
         }
         updateFirebaseValue("subgroup", subgroup)
         updateFirebaseValue("isStudent", isStudent)
 
-        group?.let { saveStringToSharedPreferences("group", it, context) }
-        saveIntToSharedPreferences("subgroup", subgroup, context)
-        saveBoolToSharedPreferences("isStudent", isStudent, context)
+        group?.let {
+            saveStringToSharedPreferences(
+                "group",
+                it,
+                context
+            )
+        }
+        saveIntToSharedPreferences(
+            "subgroup",
+            subgroup,
+            context
+        )
+        saveBoolToSharedPreferences(
+            "isStudent",
+            isStudent,
+            context
+        )
     }
 
     private fun updateFirebaseValue(key: String, value: Any) {

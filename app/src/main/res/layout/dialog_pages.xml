@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appLightColor"
+    android:animateLayoutChanges="true">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        app:layout_constraintBottom_toTopOf="@+id/indicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="0dp">
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+    <me.relex.circleindicator.CircleIndicator3
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/next_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:ci_drawable="@drawable/pages_selected_indicator"
+        app:ci_drawable_unselected="@drawable/pages_unselected_indicator"/>
+
+    <Button
+        android:id="@+id/next_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/pages_next_button"
+        android:fontFamily="sans-serif-light"
+        android:text="ДАЛІ"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+        android:textColor="@color/appLightColor"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/skip_button" />
+
+    <Button
+        android:id="@+id/skip_button"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="30dp"
+        android:background="@null"
+        android:fontFamily="sans-serif-thin"
+        android:text="Пропустити"
+        android:textColor="@color/inactiveIconColor"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/next_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/next_button" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

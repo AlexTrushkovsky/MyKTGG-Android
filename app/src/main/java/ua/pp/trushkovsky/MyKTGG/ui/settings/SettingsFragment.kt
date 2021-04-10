@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.fragment_settings.*
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.R.drawable.def_green
 import ua.pp.trushkovsky.MyKTGG.R.drawable.def_red
+import ua.pp.trushkovsky.MyKTGG.helpers.*
 import java.io.ByteArrayOutputStream
 
 
@@ -55,7 +56,11 @@ class SettingsFragment : Fragment() {
         if (bool) {
             Firebase.messaging.subscribeToTopic("news").addOnCompleteListener {
                 if (it.isSuccessful) {
-                    saveBoolToSharedPreferences("isSubscribedToNews", bool, context)
+                    saveBoolToSharedPreferences(
+                        "isSubscribedToNews",
+                        bool,
+                        context
+                    )
                     Toast.makeText(context, "Тепер вам будуть надходити повідомлення про новини", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "Виникла помилка ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
@@ -64,7 +69,11 @@ class SettingsFragment : Fragment() {
         } else {
             Firebase.messaging.unsubscribeFromTopic("news").addOnCompleteListener {
                 if (it.isSuccessful) {
-                    saveBoolToSharedPreferences("isSubscribedToNews", bool, context)
+                    saveBoolToSharedPreferences(
+                        "isSubscribedToNews",
+                        bool,
+                        context
+                    )
                     Toast.makeText(context, "Вам більше не будуть надходити повідомлення про новини", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "Don`t Subscribed to news: ${it.exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
@@ -74,11 +83,19 @@ class SettingsFragment : Fragment() {
     }
 
     fun subscribeToChanges() {
-        val group = getStringFromSharedPreferences("group", context)
+        val group =
+            getStringFromSharedPreferences(
+                "group",
+                context
+            )
         val transliterated = transliterate(group.trim())
             Firebase.messaging.subscribeToTopic("changesOf$transliterated").addOnCompleteListener {
                 if (it.isSuccessful) {
-                    saveStringToSharedPreferences("changesPush", group, context)
+                    saveStringToSharedPreferences(
+                        "changesPush",
+                        group,
+                        context
+                    )
                     val toast = Toast.makeText(getApplicationContext(), "Тепер вам будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT) ?: return@addOnCompleteListener
                     toast.show()
                 } else {
@@ -89,12 +106,20 @@ class SettingsFragment : Fragment() {
     }
 
     fun unsubscribeFromChanges() {
-        val group = getStringFromSharedPreferences("changesPush", context)
+        val group =
+            getStringFromSharedPreferences(
+                "changesPush",
+                context
+            )
         if (group != "") {
             val transliterated = transliterate(group.trim())
             Firebase.messaging.unsubscribeFromTopic("changesOf$transliterated").addOnCompleteListener {
                 if (it.isSuccessful) {
-                    saveStringToSharedPreferences("changesPush", "", context)
+                    saveStringToSharedPreferences(
+                        "changesPush",
+                        "",
+                        context
+                    )
                     Toast.makeText(context, "Вам більше не будуть надходити повідомлення про заміни $group", Toast.LENGTH_SHORT).show()
                     changeNotificationsSwitch?.isChecked = false
                 } else {
@@ -105,18 +130,34 @@ class SettingsFragment : Fragment() {
     }
 
     fun subscribeToGroupPushes() {
-        val group = getStringFromSharedPreferences("group", context)
+        val group =
+            getStringFromSharedPreferences(
+                "group",
+                context
+            )
         val transliterated = transliterate(group.trim())
         Firebase.messaging.subscribeToTopic(transliterated).addOnCompleteListener {
-            if (it.isSuccessful) saveStringToSharedPreferences("groupOfPushes", group, context)
+            if (it.isSuccessful) saveStringToSharedPreferences(
+                "groupOfPushes",
+                group,
+                context
+            )
         }
     }
     fun unsubscribeFromGroupPushes() {
-        val group = getStringFromSharedPreferences("groupOfPushes", context)
+        val group =
+            getStringFromSharedPreferences(
+                "groupOfPushes",
+                context
+            )
         if (group != "") {
             val transliterated = transliterate(group.trim())
             Firebase.messaging.unsubscribeFromTopic("changesOf$transliterated").addOnCompleteListener {
-                if (it.isSuccessful) saveStringToSharedPreferences("groupOfPushes", "", context)
+                if (it.isSuccessful) saveStringToSharedPreferences(
+                    "groupOfPushes",
+                    "",
+                    context
+                )
             }
         }
     }
@@ -148,11 +189,18 @@ class SettingsFragment : Fragment() {
         updateUserValues()
         checkVerification()
 
-        if (getBoolFromSharedPreferences("isSubscribedToNews", context)) newsNotifiactionsSwitch.isChecked = true
+        if (getBoolFromSharedPreferences(
+                "isSubscribedToNews",
+                context
+            )
+        ) newsNotifiactionsSwitch.isChecked = true
         newsNotifiactionsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             subscribeToNews(isChecked)
         }
-        if (getStringFromSharedPreferences("changesPush", context) != "") changeNotificationsSwitch.isChecked = true
+        if (getStringFromSharedPreferences(
+                "changesPush",
+                context
+            ) != "") changeNotificationsSwitch.isChecked = true
         changeNotificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 subscribeToChanges()
@@ -196,11 +244,31 @@ class SettingsFragment : Fragment() {
     }
 
     fun fillDataFromDefaults() {
-        val name = getStringFromSharedPreferences("name", activity)
-        val group = getStringFromSharedPreferences("group", activity)
-        val subgroup = getIntFromSharedPreferences("subgroup", activity)
-        val image = getStringFromSharedPreferences("userImage", activity)
-        val isStudent = getBoolFromSharedPreferences("isStudent", activity)
+        val name =
+            getStringFromSharedPreferences(
+                "name",
+                activity
+            )
+        val group =
+            getStringFromSharedPreferences(
+                "group",
+                activity
+            )
+        val subgroup =
+            getIntFromSharedPreferences(
+                "subgroup",
+                activity
+            )
+        val image =
+            getStringFromSharedPreferences(
+                "userImage",
+                activity
+            )
+        val isStudent =
+            getBoolFromSharedPreferences(
+                "isStudent",
+                activity
+            )
         this.isStudent = isStudent
         if (name != "" && userName != null) {
             userName.text = name
@@ -219,7 +287,11 @@ class SettingsFragment : Fragment() {
             if (isStudent) {
                 userSubGroup.text =
                     if (subgroup == 0) "1 підгрупа" else "2 підгрупа"
-                saveIntToSharedPreferences("subgroup", subgroup, activity)
+                saveIntToSharedPreferences(
+                    "subgroup",
+                    subgroup,
+                    activity
+                )
             } else {
                 userSubGroup.text = "Викладач"
             }
@@ -228,11 +300,10 @@ class SettingsFragment : Fragment() {
 
     fun encodeTobase64(image: Bitmap): String? {
         val baos = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val btm = Bitmap.createScaledBitmap(image, 400, 400, false)
+        btm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val b: ByteArray = baos.toByteArray()
-        val imageEncoded: String = Base64.encodeToString(b, Base64.DEFAULT)
-        Log.d("Image Log:", imageEncoded)
-        return imageEncoded
+        return Base64.encodeToString(b, Base64.DEFAULT)
     }
 
     fun decodeBase64(input: String?): Bitmap? {
@@ -257,7 +328,11 @@ class SettingsFragment : Fragment() {
                         val map = snapshot.value as Map<String, Any>
                         Log.e("Settings", "$map")
                         if (map["verified"] != null) {
-                            val group = getStringFromSharedPreferences("group", activity)
+                            val group =
+                                getStringFromSharedPreferences(
+                                    "group",
+                                    activity
+                                )
                             if (group == map["verified"].toString()) {
                                 settings_verified_image?.setImageResource(def_green)
                                 no_verification_banner?.isVisible = false
@@ -277,7 +352,7 @@ class SettingsFragment : Fragment() {
     }
 
     fun updateUserValues() {
-        var userID = Firebase.auth.currentUser?.uid ?: return
+        val userID = Firebase.auth.currentUser?.uid ?: return
         FirebaseDatabase.getInstance().reference
             .child("users")
             .child(userID)
@@ -292,22 +367,30 @@ class SettingsFragment : Fragment() {
                         if (userImage != null) {
                             if (url != "null") {
                                 Glide.with(requireContext()).load(url).into(userImage)
-                            } else {
-                                userImage.setImageResource(R.drawable.avatar_placeholder)
                             }
                         }
+                    } else {
+                        userImage?.setImageResource(R.drawable.avatar_placeholder)
                     }
                     if (map["name"] != null) {
                         val name = map["name"].toString()
                         if (userName != null) {
                             userName.text = name
-                            saveStringToSharedPreferences("name", name, activity)
+                            saveStringToSharedPreferences(
+                                "name",
+                                name,
+                                activity
+                            )
                         }
                     }
                     if (map["isStudent"] != null) {
                         val isStudent = map["isStudent"].toString().toBoolean()
                         this@SettingsFragment.isStudent = isStudent
-                        saveBoolToSharedPreferences("isStudent", isStudent, activity)
+                        saveBoolToSharedPreferences(
+                            "isStudent",
+                            isStudent,
+                            activity
+                        )
                     }
                     if (map["subgroup"] != null) {
 
@@ -316,7 +399,11 @@ class SettingsFragment : Fragment() {
                             if (isStudent) {
                                 userSubGroup.text =
                                     if (subgroup == 0) "1 підгрупа" else "2 підгрупа"
-                                saveIntToSharedPreferences("subgroup", subgroup, activity)
+                                saveIntToSharedPreferences(
+                                    "subgroup",
+                                    subgroup,
+                                    activity
+                                )
                             } else {
                                 userSubGroup.text = "Викладач"
                             }
@@ -326,10 +413,18 @@ class SettingsFragment : Fragment() {
                         val group = map["group"].toString()
                         if (userGroup != null) {
                             userGroup.text = group
-                            if (group != getStringFromSharedPreferences("group", context)) {
+                            if (group != getStringFromSharedPreferences(
+                                    "group",
+                                    context
+                                )
+                            ) {
                                 unsubscribeFromChanges()
                                 unsubscribeFromGroupPushes()
-                                saveStringToSharedPreferences("group", group, activity)
+                                saveStringToSharedPreferences(
+                                    "group",
+                                    group,
+                                    activity
+                                )
                                 subscribeToGroupPushes()
                                 subscribeToChanges()
                             }
@@ -341,7 +436,11 @@ class SettingsFragment : Fragment() {
                         val bitmap = userImage.drawable ?: return
                         val imageString = encodeTobase64(bitmap.toBitmap())
                         if (imageString != null) {
-                            saveStringToSharedPreferences("userImage", imageString, activity)
+                            saveStringToSharedPreferences(
+                                "userImage",
+                                imageString,
+                                activity
+                            )
                         }
                     }
                 }

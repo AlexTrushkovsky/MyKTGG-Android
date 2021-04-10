@@ -27,7 +27,7 @@
 
 
     <com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
-        android:id="@+id/bootomSheetRecycler"
+        android:id="@+id/bottomSheetRecycler"
         android:layout_width="match_parent"
         android:layout_height="995dp"
         app:behind_swiped_item_bg_color="@color/transparent"

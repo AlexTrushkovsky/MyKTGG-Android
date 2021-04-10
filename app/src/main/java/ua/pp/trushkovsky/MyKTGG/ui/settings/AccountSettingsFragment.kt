@@ -2,6 +2,7 @@ package ua.pp.trushkovsky.MyKTGG.ui.settings
 
 import android.app.Activity
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,7 +13,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import kotlinx.android.synthetic.main.fragment_account_settings.*
 import kotlinx.android.synthetic.main.fragment_settings.*
@@ -35,8 +34,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import ua.pp.trushkovsky.MyKTGG.R
 import ua.pp.trushkovsky.MyKTGG.RegActivity
+import ua.pp.trushkovsky.MyKTGG.helpers.getBoolFromSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.getIntFromSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.getStringFromSharedPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.saveStringToSharedPreferences
 import java.io.ByteArrayOutputStream
-import java.io.File
 
 
 @Suppress("DEPRECATION")
@@ -53,9 +55,9 @@ class AccountSettingsFragment : Fragment() {
             }
             if (account_changeUserType_button != null) {
                 if (value) {
-                    account_changeUserType_button.setText("Обрати викладача")
+                    account_changeUserType_button.text = "Обрати викладача"
                 } else {
-                    account_changeUserType_button.setText("Обрати групу")
+                    account_changeUserType_button.text = "Обрати групу"
                 }
             }
             setupPickerView()
@@ -69,7 +71,7 @@ class AccountSettingsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_account_settings, container, false)
     }
 
-    fun setupPickerView() {
+    private fun setupPickerView() {
         groupPicker?.isVisible = false
         account_group_progress?.isVisible = true
         shadow_view?.isVisible = true
@@ -81,9 +83,13 @@ class AccountSettingsFragment : Fragment() {
                 with(groupPicker) {
                     items = itemList
                     setSelectedItem(items[0])
-                    val currentGroup = getStringFromSharedPreferences("group", context)
+                    val currentGroup =
+                        getStringFromSharedPreferences(
+                            "group",
+                            context
+                        )
                     for ((index, group) in items.withIndex()) {
-                        if (group.toString() == currentGroup) {
+                        if (group.title == currentGroup) {
                             setSelectedItem(items[index])
                         }
                     }
@@ -98,7 +104,11 @@ class AccountSettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isStudent = getBoolFromSharedPreferences("isStudent", this.activity)
+        isStudent =
+            getBoolFromSharedPreferences(
+                "isStudent",
+                this.activity
+            )
         setupPickerView()
         fillDataFromDefaults()
     }
@@ -125,21 +135,17 @@ class AccountSettingsFragment : Fragment() {
         }
         accountUserImage.setOnClickListener {
             ImagePicker.with(this)
-                .compress(1024)			//Final image size will be less than 1 MB(Optional)
-                .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
+                .compress(1024)//Final image size will be less than 1 MB(Optional)
+                .crop(400F, 400F)
+                .maxResultSize(400, 400)	//Final image resolution will be less than 1080 x 1080(Optional)
                 .start { resultCode, data ->
                     if (resultCode == Activity.RESULT_OK) {
-                        //Image Uri will not be null for RESULT_OK
                         val fileUri = data?.data
                         accountUserImage.setImageURI(fileUri)
                         this.avatarIsChanged = true
                         if (fileUri != null) {
                             this.imageURL = fileUri
                         }
-                    } else if (resultCode == ImagePicker.RESULT_ERROR) {
-                        Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Task Cancelled", Toast.LENGTH_SHORT).show()
                     }
                 }
         }
@@ -161,14 +167,16 @@ class AccountSettingsFragment : Fragment() {
             updateFirebaseValue("group", group)
         }
         var subgroup = 0
-        if (account_first_subgroup.isChecked) {
-            subgroup = 0
-        } else if (account_second_subgroup.isChecked) {
-            subgroup = 1
+        if (account_first_subgroup != null && account_second_subgroup != null) {
+            if (account_first_subgroup.isChecked) {
+                subgroup = 0
+            } else if (account_second_subgroup.isChecked) {
+                subgroup = 1
+            }
         }
         updateFirebaseValue("subgroup", subgroup)
         updateFirebaseValue("isStudent", isStudent)
-        val name = editTextTextPersonName.text.toString()
+        val name = editTextTextPersonName?.text.toString()
         if (name != "") {
             updateFirebaseValue("name", name)
         }
@@ -178,7 +186,11 @@ class AccountSettingsFragment : Fragment() {
                 val bitmap = accountUserImage.drawable ?: return
                 val imageString = encodeTobase64(bitmap.toBitmap())
                 if (imageString != null) {
-                    saveStringToSharedPreferences("userImage", imageString, this.activity)
+                    saveStringToSharedPreferences(
+                        "userImage",
+                        imageString,
+                        this.activity
+                    )
                 }
             }
             uploadImage()
@@ -193,8 +205,7 @@ class AccountSettingsFragment : Fragment() {
             val progressDialog = ProgressDialog(context)
             progressDialog.setTitle("Завантаження...")
             progressDialog.show()
-            val ref: StorageReference =
-                Firebase.storage.reference.child("avatars").child(userID)
+            val ref = Firebase.storage.reference.child("avatars").child(userID)
             ref.putFile(image)
                 .addOnSuccessListener {
                     progressDialog.dismiss()
@@ -221,13 +232,15 @@ class AccountSettingsFragment : Fragment() {
             .child(key).setValue(value)
     }
 
-    fun logOut() {
+    private fun logOut() {
         Firebase.auth.signOut()
         Log.d("BottomNav", "verifying login")
         val uid = FirebaseAuth.getInstance().uid
         if (uid == null) {
             Log.d("BottomNav", "need to relogin")
-            val intent = Intent (getActivity(), RegActivity::class.java)
+            val settings = activity?.getSharedPreferences("default", Context.MODE_PRIVATE)
+            settings?.edit()?.clear()?.apply()
+            val intent = Intent (activity, RegActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         } else {
@@ -235,7 +248,7 @@ class AccountSettingsFragment : Fragment() {
         }
     }
 
-    fun updateUserValues() {
+    private fun updateUserValues() {
         var userID = Firebase.auth.currentUser?.uid ?: return
         FirebaseDatabase.getInstance().reference
             .child("users")
@@ -248,7 +261,10 @@ class AccountSettingsFragment : Fragment() {
                     Log.e("Settings", "$map")
                     val url = map["avatarUrl"].toString()
                     val name = map["name"].toString()
-                    val subgroup = map["subgroup"].toString().toInt()
+                    var subgroup: Int? = null
+                    if (map["subgroup"] != null) {
+                        subgroup = map["subgroup"].toString().toInt()
+                    }
                     val group = map["group"].toString()
                     val isstudent = map["isStudent"].toString().toBoolean()
 
@@ -274,10 +290,10 @@ class AccountSettingsFragment : Fragment() {
                         }
                     }
                     if (account_second_subgroup != null && account_first_subgroup != null) {
-                        if (subgroup == 0) {
-                            account_first_subgroup.isChecked = true
-                        } else {
+                        if (subgroup == 1) {
                             account_second_subgroup.isChecked = true
+                        } else {
+                            account_first_subgroup.isChecked = true
                         }
                     }
                 }
@@ -288,11 +304,27 @@ class AccountSettingsFragment : Fragment() {
             })
     }
 
-    fun fillDataFromDefaults() {
-        val name = getStringFromSharedPreferences("name", activity)
-        val group = getStringFromSharedPreferences("group", activity)
-        val subgroup = getIntFromSharedPreferences("subgroup", activity)
-        val image = getStringFromSharedPreferences("userImage", activity)
+    private fun fillDataFromDefaults() {
+        val name =
+            getStringFromSharedPreferences(
+                "name",
+                activity
+            )
+        val group =
+            getStringFromSharedPreferences(
+                "group",
+                activity
+            )
+        val subgroup =
+            getIntFromSharedPreferences(
+                "subgroup",
+                activity
+            )
+        val image =
+            getStringFromSharedPreferences(
+                "userImage",
+                activity
+            )
         if (name != "" && editTextTextPersonName != null) {
             editTextTextPersonName.setText(name)
         }
@@ -315,7 +347,7 @@ class AccountSettingsFragment : Fragment() {
         }
     }
 
-    fun encodeTobase64(image: Bitmap): String? {
+    private fun encodeTobase64(image: Bitmap): String? {
         val baos = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val b: ByteArray = baos.toByteArray()
@@ -324,7 +356,7 @@ class AccountSettingsFragment : Fragment() {
         return imageEncoded
     }
 
-    fun decodeBase64(input: String?): Bitmap? {
+    private fun decodeBase64(input: String?): Bitmap? {
         val decodedByte = Base64.decode(input, 0)
         return BitmapFactory
             .decodeByteArray(decodedByte, 0, decodedByte.size)

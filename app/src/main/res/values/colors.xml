@@ -3,7 +3,7 @@
     <color name="colorPrimary">#00674F</color>
     <color name="colorPrimaryDark">#00674F</color>
     <color name="colorAccent">@color/ic_launcher_background</color>
-    <color name="backgroundGrayColor">#F0F4F8</color>
+    <color name="backgroundGrayColor">#FBFAFA</color>
 
     <color name="mainActivityBackgroundColor">#00674F</color>
     <color name="appLightColor">#FAF9F9</color>
@@ -24,4 +24,5 @@
     <color name="swipeBehindBackground">#d0184c</color>
     <color name="swipeBehindBackgroundSecondary">#17af98</color>
     <color name="swipeBehindTextColor">#ffffff</color>
+    <color name="statusBarRegColor">#898888</color>
 </resources>

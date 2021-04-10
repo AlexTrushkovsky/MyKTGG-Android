@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/appLightColor"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".RegActivity">
+
+        <TextView
+            android:id="@+id/RegScreenTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="Створити Аккаунт"
+            android:textColor="#009688"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/userNameRegisterField"
+            android:layout_width="296dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="60dp"
+            android:background="@drawable/rounded_textfield"
+            android:drawableLeft="@drawable/reg_icon_acc"
+            android:drawablePadding="15dp"
+            android:ems="10"
+            android:hint="ім'я та призвіще"
+            android:inputType="textPersonName"
+            android:padding="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/RegScreenTitle" />
+
+        <EditText
+            android:id="@+id/userEmailRegisterField"
+            android:layout_width="296dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/rounded_textfield"
+            android:drawableLeft="@drawable/reg_icon_mail"
+            android:drawablePadding="15dp"
+            android:ems="10"
+            android:hint="email"
+            android:inputType="textEmailAddress"
+            android:padding="15dp"
+            app:layout_constraintEnd_toEndOf="@+id/userNameRegisterField"
+            app:layout_constraintStart_toStartOf="@+id/userNameRegisterField"
+            app:layout_constraintTop_toBottomOf="@+id/userNameRegisterField" />
+
+        <EditText
+            android:id="@+id/userPasswordRegisterField"
+            android:layout_width="296dp"
+            android:layout_height="51dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/rounded_textfield"
+            android:drawableLeft="@drawable/reg_icon_pass"
+            android:drawablePadding="15dp"
+            android:ems="10"
+            android:hint="пароль"
+            android:inputType="textPassword"
+            android:padding="15dp"
+            app:layout_constraintEnd_toEndOf="@+id/userEmailRegisterField"
+            app:layout_constraintStart_toStartOf="@+id/userEmailRegisterField"
+            app:layout_constraintTop_toBottomOf="@+id/userEmailRegisterField" />
+
+        <TextView
+            android:id="@+id/forgotPassRegisterActivity"
+            android:layout_width="191dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Забули пароль?"
+            android:textAllCaps="false"
+            app:layout_constraintEnd_toEndOf="@+id/userPasswordRegisterField"
+            app:layout_constraintStart_toStartOf="@+id/userPasswordRegisterField"
+            app:layout_constraintTop_toBottomOf="@+id/userPasswordRegisterField" />
+
+        <TextView
+            android:id="@+id/loginSubButton"
+            android:layout_width="191dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="36dp"
+            android:gravity="center"
+            android:text="Увійти"
+            android:textAllCaps="false"
+            app:layout_constraintEnd_toEndOf="@+id/buttonLayout"
+            app:layout_constraintStart_toStartOf="@+id/buttonLayout"
+            app:layout_constraintTop_toBottomOf="@+id/buttonLayout" />
+
+        <ImageButton
+            android:id="@+id/signInWithFacebook"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/button_card_view"
+            android:tint="#00FFFFFF"
+            app:layout_constraintEnd_toEndOf="@+id/forgotPassRegisterActivity"
+            app:layout_constraintStart_toStartOf="@+id/forgotPassRegisterActivity"
+            app:layout_constraintTop_toBottomOf="@+id/forgotPassRegisterActivity"
+            app:srcCompat="@drawable/facebook" />
+
+        <ImageButton
+            android:id="@+id/signInWithTeams"
+            android:layout_width="64dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/button_card_view"
+            android:tint="#00FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/signInWithFacebook"
+            app:layout_constraintStart_toEndOf="@+id/signInWithFacebook"
+            app:layout_constraintTop_toTopOf="@+id/signInWithFacebook"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/teams" />
+
+        <ImageButton
+            android:id="@+id/signInWithGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/button_card_view"
+            android:tint="#00FFFFFF"
+            app:layout_constraintBottom_toBottomOf="@+id/signInWithFacebook"
+            app:layout_constraintEnd_toStartOf="@+id/signInWithFacebook"
+            app:layout_constraintTop_toTopOf="@+id/signInWithFacebook"
+            app:srcCompat="@drawable/google" />
+
+
+        <RelativeLayout
+            android:id="@+id/buttonLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="@+id/userPasswordRegisterField"
+            app:layout_constraintStart_toStartOf="@+id/userPasswordRegisterField"
+            app:layout_constraintTop_toBottomOf="@+id/signInWithFacebook">
+
+            <Button
+                android:id="@+id/regButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:background="@drawable/roundedcorners"
+                android:text="Зареєструватися" />
+        </RelativeLayout>
+
+        <com.github.mmin18.widget.RealtimeBlurView
+            android:id="@+id/blurred_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:realtimeBlurRadius="0dp"
+            android:alpha="0"
+            app:realtimeOverlayColor="#73000000"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
+
+        <ProgressBar
+            android:id="@+id/RegProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:alpha="0"
+            android:background="@drawable/calendar_item_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+
+<!--    android:visibility="invisible"-->

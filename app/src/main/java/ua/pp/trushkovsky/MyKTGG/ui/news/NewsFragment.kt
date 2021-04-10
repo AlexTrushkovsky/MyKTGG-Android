@@ -1,12 +1,13 @@
 package ua.pp.trushkovsky.MyKTGG.ui.news.d
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_news.*
-import kotlinx.android.synthetic.main.fragment_news.bootomSheetRecycler
+import kotlinx.android.synthetic.main.fragment_news.bottomSheetRecycler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -14,6 +15,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ua.pp.trushkovsky.MyKTGG.R
+import ua.pp.trushkovsky.MyKTGG.helpers.setupView
 import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
 import ua.pp.trushkovsky.MyKTGG.ui.news.api.APIRequest
 import ua.pp.trushkovsky.MyKTGG.ui.news.api.RecyclerAdapter
@@ -36,16 +38,14 @@ class NewsFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.e("News", "Creating view")
-
         makeAPIRequest()
-        val root = inflater.inflate(R.layout.fragment_news, container, false)
-        return root
+        return inflater.inflate(R.layout.fragment_news, container, false)
     }
 
     override fun onStart() {
         super.onStart()
-        swiperefresh.isRefreshing = true
-        swiperefresh.setOnRefreshListener {
+        swipeRefresh.isRefreshing = true
+        swipeRefresh.setOnRefreshListener {
             titleList.clear()
             textList.clear()
             imagesList.clear()
@@ -58,8 +58,8 @@ class NewsFragment: Fragment() {
     }
 
     private fun setUpRecyclerView() {
-        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        bootomSheetRecycler.adapter = RecyclerAdapter(
+        bottomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        bottomSheetRecycler.adapter = RecyclerAdapter(
             categoryList,
             dateList,
             imagesList,
@@ -107,12 +107,12 @@ class NewsFragment: Fragment() {
                 }
                 withContext(Dispatchers.Main) {
                     setUpRecyclerView()
-                    swiperefresh.isRefreshing = false
+                    swipeRefresh.isRefreshing = false
                 }
             } catch (e: Exception) {
                 Log.e("News", e.toString())
                 activity?.runOnUiThread {
-                    showDialogWith("Відсутнє з'єднання з мережею", "зверніться до техпідтримки, або cпробуйте будь ласка пізніше", context, swiperefresh)
+                    showDialogWith("Відсутнє з'єднання з мережею", "зверніться до техпідтримки, або cпробуйте будь ласка пізніше", context, swipeRefresh)
                 }
             }
         }

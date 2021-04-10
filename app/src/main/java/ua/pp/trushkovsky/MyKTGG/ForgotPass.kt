@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +24,7 @@ class ForgotPass : DialogFragment() {
         if (dialog != null) {
             val width = ViewGroup.LayoutParams.MATCH_PARENT
             val height = ViewGroup.LayoutParams.MATCH_PARENT
+            dialog.window!!.statusBarColor = ContextCompat.getColor(requireContext(), R.color.appLightColor)
             dialog.window!!.setLayout(width, height)
             dialog.window!!.setWindowAnimations(R.style.AppTheme_Slide)
         }

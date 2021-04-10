@@ -1,41 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="20dp"
+    android:background="@color/colorPrimary"
+    tools:context="ua.pp.trushkovsky.MyKTGG.BottomNavActivity">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:id="@+id/news_layout"
-    android:background="@color/backgroundGrayColor">
+    android:background="@color/backgroundGrayColor"
+    tools:context="ua.pp.trushkovsky.MyKTGG.BottomNavActivity">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
-
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/bootomSheetRecycler"
+            android:id="@+id/bottomSheetRecycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
             android:layout_marginBottom="4dp"
             tools:listitem="@layout/news_item_layout"/>
-
-        <TextView
-            android:id="@+id/tv_noInternetCountDown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="10dp"
-            android:text="3"
-            android:textColor="@android:color/white"
-            android:textStyle="italic"
-            android:visibility="gone" />
-
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -51,7 +51,6 @@ class GroupNetworkController {
                  }
                  return@async items
             }
-        val itemList = items.await()
-        return itemList
+        return items.await()
     }
 }

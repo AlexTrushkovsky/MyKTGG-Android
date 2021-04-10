@@ -5,14 +5,11 @@
         <item name="android:colorControlHighlight">@color/inactiveIconColor</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="colorAccent">@color/colorAccent</item>>
+        <item name="android:fitsSystemWindows">true</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@drawable/start_screen</item>
 
     </style>

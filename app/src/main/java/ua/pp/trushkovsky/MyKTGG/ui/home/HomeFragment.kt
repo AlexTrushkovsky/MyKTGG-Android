@@ -5,38 +5,34 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ernestoyaquello.dragdropswiperecyclerview.DragDropSwipeRecyclerView
-import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnItemDragListener
 import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnItemSwipeListener
-import com.ernestoyaquello.dragdropswiperecyclerview.listener.OnListScrollListener
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mahc.custombottomsheetbehavior.BottomSheetBehaviorGoogleMapsLike
 import kotlinx.android.synthetic.main.bottom_sheet_content.*
 import kotlinx.android.synthetic.main.fragment_home.*
-import kotlinx.android.synthetic.main.fragment_news.bootomSheetRecycler
+import kotlinx.android.synthetic.main.fragment_news.bottomSheetRecycler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.*
 import ua.pp.trushkovsky.MyKTGG.R
+import ua.pp.trushkovsky.MyKTGG.helpers.setupView
 import ua.pp.trushkovsky.MyKTGG.helpers.showDialogWith
 import ua.pp.trushkovsky.MyKTGG.ui.home.model.Pushes
 import ua.pp.trushkovsky.MyKTGG.ui.home.weather.WeatherModel
 import java.io.IOException
-import java.lang.reflect.Type
-import kotlin.math.roundToInt
 
 
 class HomeFragment : Fragment() {
@@ -53,6 +49,18 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val ctx = context ?: return
+        requireActivity().window.statusBarColor = ContextCompat.getColor(ctx, R.color.transparent)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val ctx = context ?: return
+        requireActivity().window.statusBarColor = ContextCompat.getColor(ctx, R.color.appLightColor)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -170,8 +178,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun setUpRecyclerView() {
-        bootomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
-        val recycler = bootomSheetRecycler as? DragDropSwipeRecyclerView ?: return
+        bottomSheetRecycler.layoutManager = LinearLayoutManager(requireActivity().application.applicationContext)
+        val recycler = bottomSheetRecycler as? DragDropSwipeRecyclerView ?: return
         recycler.adapter = MainRecyclerAdapter(pushes)
         recycler.orientation = DragDropSwipeRecyclerView.ListOrientation.VERTICAL_LIST_WITH_VERTICAL_DRAGGING
         recycler.swipeListener = onItemSwipeListener
@@ -187,7 +195,7 @@ class HomeFragment : Fragment() {
 
     operator fun set(key: String?, value: String?) {
         val context = context ?: return
-        val sharedPreferences = context.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("global", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(key, value)
         editor.apply()
@@ -195,7 +203,7 @@ class HomeFragment : Fragment() {
 
     fun getList(key: String): List<Pushes>? {
         val context = context ?: return null
-        val sharedPreferences = context.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val sharedPreferences = context.getSharedPreferences("global", Context.MODE_PRIVATE)
         val serializedObject = sharedPreferences.getString(key, null) ?: return null
         val type = object : TypeToken<List<Pushes>>() {}.type ?: return null
         var list: List<Pushes>? = null

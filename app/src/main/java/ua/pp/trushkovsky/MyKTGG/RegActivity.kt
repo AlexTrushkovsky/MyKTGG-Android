@@ -1,32 +1,59 @@
 package ua.pp.trushkovsky.MyKTGG
 
+import android.animation.ValueAnimator
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.facebook.AccessToken
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth.getInstance
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.OAuthCredential
+import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
+import com.google.firebase.storage.ktx.storage
+import kotlinx.android.synthetic.main.activity_reg.*
+import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import ua.pp.trushkovsky.MyKTGG.helpers.getIntFromGlobalPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.saveIntToGlobalPreferences
+import ua.pp.trushkovsky.MyKTGG.helpers.stringSimilatity
+import ua.pp.trushkovsky.MyKTGG.pages.PagesDialog
+import ua.pp.trushkovsky.MyKTGG.ui.settings.GroupNetworkController
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.net.URL
 
 
-class RegActivity : AppCompatActivity() {
+class RegActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private val RC_SIGN_IN = 9001
     private var auth = Firebase.auth
     private var callbackManager: CallbackManager? = null
@@ -35,10 +62,10 @@ class RegActivity : AppCompatActivity() {
     var singUp = true
         set(value) {
         val title = RegScreenTitle
-        val regOrLogButton = registerButton
+        val regOrLogButton = regButton
         val loginButton = loginSubButton
         val nameField = userNameRegisterField
-        if (value == true) {
+        if (value) {
             title.text = "Створити Аккаунт"
             regOrLogButton.text = "Зареєструватися"
             loginButton.text = "Увійти"
@@ -54,9 +81,10 @@ class RegActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        registerButton.setOnClickListener {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.appLightColor)
+        setContentView(R.layout.activity_reg)
+        showPagesIfNeeded()
+        regButton.setOnClickListener {
             regOrLogIn()
         }
         loginSubButton.setOnClickListener {
@@ -77,6 +105,43 @@ class RegActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("ResourceType")
+    fun startIndication() {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.statusBarRegColor)
+        val va = ValueAnimator.ofFloat(0f, 100f)
+        val mDuration = 500 //in millis
+        va.duration = mDuration.toLong()
+        va.addUpdateListener { animation ->
+            blurred_background.setBlurRadius(animation.animatedValue as Float)
+            blurred_background.alpha = (animation.animatedValue as Float)/100
+            RegProgressBar.alpha = (animation.animatedValue as Float)/100}
+        va.start()
+    }
+
+    fun stopIndication() {
+        val va = ValueAnimator.ofFloat(100f, 0f)
+        val mDuration = 500 //in millis
+        va.duration = mDuration.toLong()
+        va.addUpdateListener { animation ->
+            window.statusBarColor = ContextCompat.getColor(this, R.color.appLightColor)
+            blurred_background.setBlurRadius(animation.animatedValue as Float)
+            blurred_background.alpha = (animation.animatedValue as Float)/100
+            RegProgressBar.alpha = (animation.animatedValue as Float)/100}
+        va.start()
+    }
+
+    private fun showPagesIfNeeded() {
+        val id = "countOfEnter"
+        val countOfEnter =
+            getIntFromGlobalPreferences(id, this)
+        if (countOfEnter == -1) {
+            saveIntToGlobalPreferences(id, 1, this)
+            PagesDialog.display(supportFragmentManager)
+        } else {
+            saveIntToGlobalPreferences(id, countOfEnter + 1, this)
+        }
+    }
+
     private fun signInWithGoogle() {
         Log.d("SignIn", "Trying to sign in with google Acc")
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -92,7 +157,7 @@ class RegActivity : AppCompatActivity() {
     private fun signInWithTeams() {
         Log.d("SignIn", "Trying to sign in with teams Acc")
         val provider: OAuthProvider.Builder = OAuthProvider.newBuilder("microsoft.com")
-        val pendingResultTask = auth.getPendingAuthResult()
+        val pendingResultTask = auth.pendingAuthResult
         if (pendingResultTask != null) {
             pendingResultTask
                 .addOnSuccessListener {
@@ -107,47 +172,169 @@ class RegActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     Log.e("teams", "logged in")
                     Log.e("teams", "${it.additionalUserInfo}, ${it.user}")
+                    startIndication()
                     val intent = Intent(this, BottomNavActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
-                    // User is signed in.
-                    // IdP data available in
-                    // authResult.getAdditionalUserInfo().getProfile().
-                    // The OAuth access token can also be retrieved:
-                    // authResult.getCredential().getAccessToken().
-                    // The OAuth ID token can also be retrieved:
-                    // authResult.getCredential().getIdToken().
+
+                    val userID = Firebase.auth.currentUser?.uid ?: return@addOnSuccessListener
+                    FirebaseDatabase.getInstance().reference
+                        .child("users")
+                        .child(userID)
+                        .child("public")
+                        .addValueEventListener(object : ValueEventListener {
+                            override fun onCancelled(error: DatabaseError) {}
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                if (snapshot.value == null) {
+                                    val displayName = it.user?.displayName
+                                    if (displayName != null) {
+                                        updateFirebaseValue("name", displayName)
+                                    }
+                                    val credential = it.credential as? OAuthCredential
+                                    val token = credential?.accessToken
+                                    getTeamsAvatar(token)
+                                    getTeamsGroup(token)
+                                    return
+                                }
+                                val map = snapshot.value as Map<String, Any>
+                                Log.e("Settings", "$map")
+                                if (map["avatarUrl"] == null) {
+                                    val credential = it.credential as? OAuthCredential
+                                    getTeamsAvatar(credential?.accessToken)
+                                }
+                                if (map["name"] == null) {
+                                    val displayName = it.user?.displayName
+                                    if (displayName != null) {
+                                        updateFirebaseValue("name", displayName)
+                                    }
+                                }
+                                if (map["group"] == null) {
+                                    val credential = it.credential as? OAuthCredential
+                                    getTeamsGroup(credential?.accessToken)
+                                }
+                            }
+                        })
                 }
                 .addOnFailureListener {
+                    stopIndication()
                     Log.e("teams", it.localizedMessage)
                 }
         }
     }
 
+    fun getTeamsAvatar(token: String?) {
+        if (token != null) {
+            val url = "https://graph.microsoft.com/v1.0/me/photo/\$value"
+            val request = Request.Builder().url(url).header("Authorization", "Bearer $token").build()
+            val client = OkHttpClient()
+            launch {
+                val image = CoroutineScope(Dispatchers.IO).async {
+                    return@async client.newCall(request).execute().body()?.bytes() ?: return@async null
+                }.await()
+                //val encodeByte  = Base64.decode(image, Base64.DEFAULT) ?: return@launch
+                val bitmap = BitmapFactory.decodeByteArray(image, 0, image.size) ?: return@launch
+                val uri = getImageUri(this@RegActivity, bitmap)
+                uploadImage(uri)
+                Log.i("image", "$image")
+            }
+        }
+    }
 
-    private fun firebaseAuthWithGoogle(idToken: String) {
-        val progress = RegProgressBar
-        val dialogBuilder = AlertDialog.Builder(this)
-        progress.visibility = View.VISIBLE
-        dialogBuilder.setIcon(R.drawable.common_google_signin_btn_icon_dark)
-        dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
-            dialog.dismiss()
-        })
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
+    fun getTeamsGroup(token: String?) {
+        if (token != null) {
+            val url = "https://graph.microsoft.com/beta/me/jobtitle/\$value"
+            val request = Request.Builder().url(url).header("Authorization", "Bearer $token").build()
+            val client = OkHttpClient()
+            launch {
+                val group = CoroutineScope(Dispatchers.IO).async {
+                    return@async client.newCall(request).execute().body()?.string() ?: return@async null
+                }.await()
+                if (group.length <= 15) {
+                    findMostSimilarGroup(group)
+                }
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
+        startIndication()
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("signInWith", "signInWithCredential:success")
-                    val user = auth.currentUser
+
+                    val userID = Firebase.auth.currentUser?.uid ?: return@addOnCompleteListener
+                    FirebaseDatabase.getInstance().reference
+                        .child("users")
+                        .child(userID)
+                        .child("public")
+                        .addValueEventListener(object : ValueEventListener {
+                            override fun onCancelled(error: DatabaseError) {}
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val avatar = account.photoUrl
+                                val displayName = account.displayName
+                                if (snapshot.value == null) {
+                                    if (avatar != null) {
+                                        try {
+                                            val url = URL(avatar.toString())
+                                            launch {
+                                                val image = CoroutineScope(Dispatchers.IO).async {
+                                                    return@async BitmapFactory.decodeStream(
+                                                        url.openConnection().getInputStream()
+                                                    )
+                                                }.await()
+                                                val uri = getImageUri(this@RegActivity, image)
+                                                uploadImage(uri)
+                                            }
+                                        } catch (e: IOException) {
+                                            Log.e("Google avatar error", "$e")
+                                        }
+                                        uploadImage(avatar)
+                                    }
+                                    if (displayName != null) {
+                                        updateFirebaseValue("name", displayName)
+                                    }
+                                    return
+                                }
+                                val map = snapshot.value as Map<String, Any>
+                                Log.e("Settings", "$map")
+                                if (map["avatarUrl"] == null) {
+                                    if (avatar != null) {
+                                        try {
+                                            val url = URL(avatar.toString())
+                                            launch {
+                                                val image = CoroutineScope(Dispatchers.IO).async {
+                                                    return@async BitmapFactory.decodeStream(
+                                                        url.openConnection().getInputStream()
+                                                    )
+                                                }.await()
+                                                val uri = getImageUri(this@RegActivity, image)
+                                                uploadImage(uri)
+                                            }
+                                        } catch (e: IOException) {
+                                            Log.e("Google avatar error", "$e")
+                                        }
+                                        uploadImage(avatar)
+                                    }
+                                }
+                                if (map["name"] == null) {
+                                    if (displayName != null) {
+                                        updateFirebaseValue("name", displayName)
+                                    }
+                                }
+                            }
+                        })
+
+
                     val intent = Intent(this, BottomNavActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 } else {
-                    var progress = RegProgressBar
                     var dialogBuilder = AlertDialog.Builder(this)
-                    progress.visibility = View.VISIBLE
-                    dialogBuilder.setIcon(R.drawable.common_google_signin_btn_icon_dark)
+                    stopIndication()
+                    dialogBuilder.setIcon(R.drawable.main_appicon)
                     dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
                         dialog.dismiss()
                     })
@@ -165,7 +352,7 @@ class RegActivity : AppCompatActivity() {
                 // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java)!!
                 Log.d("TAG", "firebaseAuthWithGoogle:" + account.id)
-                firebaseAuthWithGoogle(account.idToken!!)
+                firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
                 Log.w("TAG", "Google sign in failed", e)
@@ -179,7 +366,17 @@ class RegActivity : AppCompatActivity() {
         LoginManager.getInstance().logInWithReadPermissions(this, listOf("public_profile","email"))
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult>{
             override fun onSuccess(result: LoginResult?) {
-                handleFacebookAccesstoken(result?.accessToken)
+                val token = result?.accessToken ?: return
+                val request = GraphRequest.newMeRequest(token) { json, response ->
+                    handleFacebookAccesstoken(token, json)
+                }
+
+                val parameters = Bundle()
+                parameters.putString("fields", "name,email,id,picture.type(large)")
+                request.parameters = parameters
+                request.executeAsync()
+
+
             }
 
             override fun onCancel() {
@@ -193,8 +390,9 @@ class RegActivity : AppCompatActivity() {
         })
     }
 
-    fun handleFacebookAccesstoken(token: AccessToken?) {
-        var credential = FacebookAuthProvider.getCredential(token?.token!!)
+    fun handleFacebookAccesstoken(token: AccessToken, facebookUser: JSONObject) {
+        startIndication()
+        var credential = FacebookAuthProvider.getCredential(token.token)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -204,11 +402,33 @@ class RegActivity : AppCompatActivity() {
                     val intent = Intent(this, BottomNavActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
+
+                    if (facebookUser.has("picture")) {
+                        try {
+                            launch {
+                                val profilePicUrl = facebookUser.getJSONObject("picture").getJSONObject("data").getString("url")
+                                val url = URL(profilePicUrl)
+                                val image = CoroutineScope(Dispatchers.IO).async {
+                                    return@async BitmapFactory.decodeStream(
+                                        url.openConnection().getInputStream()
+                                    )
+                                }.await()
+                                val uri = getImageUri(this@RegActivity, image)
+                                uploadImage(uri)
+                            }
+                        } catch (e: IOException) {
+                            Log.e("Facebook avatar error", "$e")
+                        }
+                    }
+                    if (facebookUser.has("name")) {
+                        val name = facebookUser.getString("name")
+                        updateFirebaseValue("name", name)
+                    }
+
                 } else {
-                    var progress = RegProgressBar
+                    stopIndication()
                     var dialogBuilder = AlertDialog.Builder(this)
-                    progress.visibility = View.VISIBLE
-                    dialogBuilder.setIcon(R.drawable.common_google_signin_btn_icon_dark)
+                    dialogBuilder.setIcon(R.drawable.main_appicon)
                     dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
                         dialog.dismiss()
                     })
@@ -216,19 +436,19 @@ class RegActivity : AppCompatActivity() {
             }
     }
 
-    private fun logIn(dialogBuilder: AlertDialog.Builder, progress: ProgressBar) {
+    private fun logIn(dialogBuilder: AlertDialog.Builder) {
         Log.d("MainActivity", "Logging in...")
         val email = userEmailRegisterField.text.toString()
         val password = userPasswordRegisterField.text.toString()
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Всі поля мають бути заповненими", Toast.LENGTH_SHORT).show()
-            progress.visibility = View.INVISIBLE
             return
         }
+        startIndication()
         getInstance().signInWithEmailAndPassword(email, password).addOnCompleteListener {
             if (!it.isSuccessful) return@addOnCompleteListener
             Log.d("MainActivity", "user successfully logged in")
-            progress.visibility = View.INVISIBLE
+            stopIndication()
             val intent = Intent(this, BottomNavActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
@@ -250,24 +470,23 @@ class RegActivity : AppCompatActivity() {
             }
             val alertDialog = dialogBuilder.create()
             alertDialog.show()
-            progress.visibility = View.INVISIBLE
+            stopIndication()
         }
     }
 
-    private fun register(dialogBuilder: AlertDialog.Builder, progress: ProgressBar) {
+    private fun register(dialogBuilder: AlertDialog.Builder) {
         Log.d("MainActivity", "Creating acc in...")
         val email = userEmailRegisterField.text.toString()
         val password = userPasswordRegisterField.text.toString()
         val userName = userNameRegisterField.text.toString()
         if (email.isEmpty() || password.isEmpty() || userName.isEmpty()) {
             Toast.makeText(this, "Всі поля мають бути заповненими", Toast.LENGTH_SHORT).show()
-            progress.visibility = View.INVISIBLE
             return
         }
         Log.d("MainActivity", "UserName is: " + userName)
         Log.d("MainActivity", "Email is: " + email)
         Log.d("MainActivity", "Password is: $password")
-
+        startIndication()
         getInstance().createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if (!it.isSuccessful) return@addOnCompleteListener
             // else
@@ -276,7 +495,7 @@ class RegActivity : AppCompatActivity() {
             getInstance().signInWithEmailAndPassword(email, password).addOnCompleteListener {
                 if (!it.isSuccessful) return@addOnCompleteListener
                 Log.d("MainActivity", "user successfully logged in")
-                progress.visibility = View.INVISIBLE
+                stopIndication()
                 val intent = Intent(this, BottomNavActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
@@ -301,22 +520,72 @@ class RegActivity : AppCompatActivity() {
             }
             val alertDialog = dialogBuilder.create()
             alertDialog.show()
-            progress.visibility = View.INVISIBLE
+            stopIndication()
         }
     }
 
     private fun regOrLogIn(){
-        var progress = RegProgressBar
         var dialogBuilder = AlertDialog.Builder(this)
-        progress.visibility = View.VISIBLE
-        dialogBuilder.setIcon(R.drawable.common_google_signin_btn_icon_dark)
+        dialogBuilder.setIcon(R.drawable.main_appicon)
         dialogBuilder.setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
             dialog.dismiss()
         })
         if (!signUpStatus) {
-            register(progress = progress, dialogBuilder = dialogBuilder)
+            register(dialogBuilder)
         } else {
-            logIn(progress = progress, dialogBuilder = dialogBuilder)
+            logIn(dialogBuilder)
+        }
+    }
+
+    private fun updateFirebaseValue(key: String, value: Any) {
+        var userID = Firebase.auth.currentUser?.uid ?: return
+        FirebaseDatabase.getInstance().reference
+            .child("users")
+            .child(userID)
+            .child("public")
+            .child(key).setValue(value)
+    }
+
+    private fun uploadImage(imageURL: Uri?) {
+        val image = imageURL ?: return
+        var userID = Firebase.auth.currentUser?.uid ?: return
+        val ref = Firebase.storage.reference.child("avatars").child(userID)
+        ref.putFile(image)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener {
+                    updateFirebaseValue("avatarUrl", it.toString())
+                }
+            }
+            .addOnFailureListener {
+                Log.e("avatar", "upload exception: $it")
+            }
+    }
+
+    private fun getImageUri(inContext: Activity, inImage: Bitmap): Uri? {
+        val bytes = ByteArrayOutputStream()
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+        val path: String = MediaStore.Images.Media.insertImage(
+            inContext.contentResolver,
+            inImage,
+            "Avatar",
+            null
+        )
+        return Uri.parse(path)
+    }
+
+    private fun findMostSimilarGroup(group: String) {
+        launch {
+            val groups = GroupNetworkController().fetchData(true)
+            var mostSimilarGroupName = group
+            var similarity = 0.0
+            for (groupName in groups) {
+                val caseSimilarity = stringSimilatity(group, groupName.title)
+                if (caseSimilarity > similarity) {
+                    similarity = caseSimilarity
+                    mostSimilarGroupName = groupName.title
+                }
+            }
+            updateFirebaseValue("group", mostSimilarGroupName)
         }
     }
 }

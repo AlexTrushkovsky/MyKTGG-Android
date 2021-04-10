@@ -82,14 +82,14 @@ class MessagingService: FirebaseMessagingService() {
     }
 
     operator fun set(key: String?, value: String?) {
-        val sharedPreferences = applicationContext.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val sharedPreferences = applicationContext.getSharedPreferences("global", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(key, value)
         editor.apply()
     }
 
     fun getList(key: String): List<Pushes>? {
-        val sharedPreferences = applicationContext.getSharedPreferences("default", Context.MODE_PRIVATE)
+        val sharedPreferences = applicationContext.getSharedPreferences("global", Context.MODE_PRIVATE)
         val serializedObject = sharedPreferences.getString(key, null) ?: return null
         val type = object : TypeToken<List<Pushes>>() {}.type ?: return null
         var list: List<Pushes>? = null

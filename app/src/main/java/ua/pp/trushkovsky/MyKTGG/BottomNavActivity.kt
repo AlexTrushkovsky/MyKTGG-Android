@@ -1,10 +1,20 @@
 package ua.pp.trushkovsky.MyKTGG
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -15,7 +25,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
 import com.trendyol.medusalib.navigator.Navigator
 
 
@@ -23,17 +32,53 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
 
     lateinit var navigation: BottomNavigationView
 
+    @SuppressLint("ResourceAsColor")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupView()
         verifyUserLoggedIn()
         checkUserGroup()
-        //subscribeToNews()
         setContentView(R.layout.activity_bottom_nav)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         val navController = findNavController(R.id.nav_host_fragment)
         navView.setOnNavigationItemReselectedListener {}
         navView.setupWithNavController(navController)
     }
+
+    private fun setupView() {
+        val win = window ?: return
+        val context = applicationContext ?: return
+        val decorView = win.decorView
+
+        win.navigationBarColor = ContextCompat.getColor(context, R.color.appLightColor)
+        win.statusBarColor = ContextCompat.getColor(context, R.color.appLightColor)
+
+        when {
+            Build.VERSION.SDK_INT >= 27 -> {
+                decorView.systemUiVisibility = FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS or
+                        View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR or
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
+            Build.VERSION.SDK_INT in 23..26 -> {
+                decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                win.setFlags(
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+                )
+            }
+            else -> {
+                win.setFlags(
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                )
+                win.setFlags(
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+                    WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+                )
+            }
+        }
+    }
+
 
     private fun verifyUserLoggedIn() {
         Log.d("BottomNav", "verifying login")
@@ -49,6 +94,7 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
     }
 
     private fun checkUserGroup() {
+        Log.e("test","checkin userGroup")
         val userID = Firebase.auth.currentUser?.uid ?: return
         FirebaseDatabase.getInstance().reference
             .child("users")
@@ -56,28 +102,37 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
             .child("public")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.value == null) { return }
+                    Log.e("test","data change userGroup")
+                    if (snapshot.value == null) {
+                        if (!hasOpenedDialogs(this@BottomNavActivity)) {
+                            GroupChoose.display(supportFragmentManager)
+                        }
+                        return
+                    }
                     val map = snapshot.value as Map<String, Any>
                     val group = map["group"]
                     val isStudent = map["isStudent"]
                     if (group == null || isStudent == null) {
-                        GroupChoose.display(supportFragmentManager)
+                        if (!hasOpenedDialogs(this@BottomNavActivity)) {
+                            GroupChoose.display(supportFragmentManager)
+                        }
                     }
                 }
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
 
-    fun subscribeToNews() {
-        Firebase.messaging.subscribeToTopic("testChannel01032021").addOnCompleteListener {
-                if (it.isSuccessful) {
-                    Log.i("messaging", "Subscribed to news")
-                    Toast.makeText(baseContext, "Subscribed to news", Toast.LENGTH_SHORT).show()
-                } else {
-                    Log.e("messaging", "Don`t Subscribed to news: ${it.exception}")
-                    Toast.makeText(baseContext, "Don`t Subscribed to news: ${it.exception}", Toast.LENGTH_SHORT).show()
+    fun hasOpenedDialogs(activity: FragmentActivity): Boolean {
+        val fragments: List<Fragment> =
+            activity.supportFragmentManager.fragments
+        if (fragments != null) {
+            for (fragment in fragments) {
+                if (fragment is DialogFragment) {
+                    return true
                 }
             }
+        }
+        return false
     }
 
     override fun onTabChanged(tabIndex: Int) {

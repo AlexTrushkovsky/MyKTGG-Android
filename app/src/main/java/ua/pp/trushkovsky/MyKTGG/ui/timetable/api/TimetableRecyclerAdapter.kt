@@ -172,7 +172,7 @@ class TimetableRecyclerAdapter(
                     this.room = null
                 } else {
                     // check if cell getting vissible on the next time
-                    holder.itemLesson.isVisible = false
+                    holder.cabImage.isVisible = false
                     holder.itemCabNum.isVisible = false
                 }
                 Log.i("tiemtable", "${holder.itemLessonStart.text} - change with lesson name and without cab found")
