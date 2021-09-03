@@ -52,7 +52,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.URL
 
-
 class RegActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private val RC_SIGN_IN = 9001
     private var auth = Firebase.auth
@@ -81,6 +80,8 @@ class RegActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         window.statusBarColor = ContextCompat.getColor(this, R.color.appLightColor)
         setContentView(R.layout.activity_reg)
         showPagesIfNeeded()

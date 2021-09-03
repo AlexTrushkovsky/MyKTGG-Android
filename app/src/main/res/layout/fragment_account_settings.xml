@@ -1,319 +1,317 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/appLightColor"
     tools:context="ua.pp.trushkovsky.MyKTGG.BottomNavActivity">
 
-<FrameLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    tools:context=".BottomNavActivity">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:context=".BottomNavActivity">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/accountToolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorBackground"
-                android:translationZ="5dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageButton
-                        android:id="@+id/account_back_button"
-                        android:layout_width="50dp"
-                        android:layout_height="40dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="5dp"
-                        android:src="@drawable/ic_arrow_left_24dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageButton
-
-                        android:id="@+id/account_save_button"
-                        android:layout_width="50dp"
-                        android:layout_height="0dp"
-                        android:layout_marginEnd="15dp"
-                        android:src="@drawable/com_facebook_button_like_icon_selected"
-                        app:layout_constraintBottom_toBottomOf="@+id/account_back_button"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@+id/account_back_button" />
-
-                    <TextView
-
-                        android:id="@+id/textView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Профіль"
-                        android:textAlignment="center"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/account_save_button"
-                        app:layout_constraintStart_toEndOf="@+id/account_back_button"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            </androidx.appcompat.widget.Toolbar>
-
-            <ScrollView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="none">
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <LinearLayout
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/accountToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/backgroundGrayColor"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="15dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="274dp">
-
-                            <com.mikhaellopez.circularimageview.CircularImageView
-                                android:id="@+id/accountUserImage"
-                                android:layout_width="190dp"
-                                android:layout_height="0dp"
-                                android:layout_marginTop="16dp"
-                                android:background="@drawable/button_card_view"
-                                android:scaleType="fitCenter"
-                                app:civ_border_width="0dp"
-                                app:civ_shadow="true"
-                                app:civ_shadow_color="@color/colorTextSubtitle"
-                                app:civ_shadow_gravity="center"
-                                app:civ_shadow_radius="5dp"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:srcCompat="@drawable/avatar_placeholder" />
-
-                            <EditText
-                                android:id="@+id/editTextTextPersonName"
-                                android:layout_width="332dp"
-                                android:layout_height="53dp"
-                                android:layout_marginBottom="16dp"
-                                android:background="#fff"
-                                android:ems="10"
-                                android:inputType="textPersonName"
-                                android:text="Невідомий користувач"
-                                android:textAlignment="center"
-                                android:textSize="24sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/userImage" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="15dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="250dp">
-
-                            <Button
-                                android:id="@+id/account_changeUserType_button"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/button_card_view"
-                                android:text="Обрати викладача"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <com.paulrybitskyi.valuepicker.ValuePickerView
-                                android:id="@+id/groupPicker"
-                                style="@style/GroupPicker"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toTopOf="@+id/segmentedControl"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button" />
-
-                            <info.hoang8f.android.segmented.SegmentedGroup
-                                android:id="@+id/segmentedControl"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="10dp"
-                                android:orientation="horizontal"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:sc_border_width="2dp"
-                                app:sc_corner_radius="10dp">
-
-                                <RadioButton
-                                    android:id="@+id/account_first_subgroup"
-                                    style="@style/segmentControlButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Перша підгрупа" />
-
-                                <RadioButton
-                                    android:id="@+id/account_second_subgroup"
-                                    style="@style/RadioButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Друга підгрупа" />
-                            </info.hoang8f.android.segmented.SegmentedGroup>
-
-                            <ProgressBar
-                                android:id="@+id/account_group_progress"
-                                style="?android:attr/progressBarStyle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button" />
-
-                            <View
-                                android:id="@+id/shadow_view"
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:background="@drawable/bottom_shadow"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintHorizontal_bias="0.0"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button"
-                                app:layout_constraintVertical_bias="0.0" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="15dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-
-                            <EditText
-                                android:id="@+id/uidTextField"
-                                android:layout_width="332dp"
-                                android:layout_height="53dp"
-                                android:ems="10"
-                                android:inputType="textPersonName"
-                                android:text=""
-                                android:textAlignment="center"
-                                android:textSize="20sp"
-                                android:visibility="invisible"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@+id/userImage" />
-
-                            <Button
-                                android:id="@+id/showUIDbutton"
-                                android:layout_width="0dp"
-                                android:layout_height="0dp"
-                                android:background="@drawable/button_card_view"
-                                android:text="Показати унікальний ідентифікатор"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintHorizontal_bias="0.498"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintVertical_bias="0.4" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-                    </androidx.cardview.widget.CardView>
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#FFFFFF"
-                        app:cardCornerRadius="15dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                    android:background="@color/colorBackground"
+                    android:translationZ="5dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <Button
-                            android:id="@+id/logOutButton"
+                        <ImageButton
+                            android:id="@+id/account_back_button"
+                            android:layout_width="50dp"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/ic_arrow_left_24dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageButton
+
+                            android:id="@+id/account_save_button"
+                            android:layout_width="50dp"
+                            android:layout_height="0dp"
+                            android:layout_marginEnd="15dp"
+                            android:src="@drawable/com_facebook_button_like_icon_selected"
+                            app:layout_constraintBottom_toBottomOf="@+id/account_back_button"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="@+id/account_back_button" />
+
+                        <TextView
+
+                            android:id="@+id/textView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="2dp"
-                            android:background="@drawable/log_out_button"
-                            android:text="@string/exit_text"
+                            android:text="Профіль"
+                            android:textAlignment="center"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/account_save_button"
+                            app:layout_constraintStart_toEndOf="@+id/account_back_button"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                </androidx.appcompat.widget.Toolbar>
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/backgroundGrayColor"
+                        android:orientation="vertical">
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="16dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:cardCornerRadius="15dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="274dp">
+
+                                <com.mikhaellopez.circularimageview.CircularImageView
+                                    android:id="@+id/accountUserImage"
+                                    android:layout_width="190dp"
+                                    android:layout_height="0dp"
+                                    android:layout_marginTop="16dp"
+                                    android:background="@drawable/button_card_view"
+                                    android:scaleType="fitCenter"
+                                    app:civ_border_width="0dp"
+                                    app:civ_shadow="true"
+                                    app:civ_shadow_color="@color/colorTextSubtitle"
+                                    app:civ_shadow_gravity="center"
+                                    app:civ_shadow_radius="5dp"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:srcCompat="@drawable/avatar_placeholder" />
+
+                                <EditText
+                                    android:id="@+id/editTextTextPersonName"
+                                    android:layout_width="332dp"
+                                    android:layout_height="53dp"
+                                    android:layout_marginBottom="16dp"
+                                    android:background="#fff"
+                                    android:ems="10"
+                                    android:inputType="textPersonName"
+                                    android:text="Невідомий користувач"
+                                    android:textAlignment="center"
+                                    android:textSize="24sp"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/userImage" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="16dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:cardCornerRadius="15dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="250dp">
+
+                                <Button
+                                    android:id="@+id/account_changeUserType_button"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/button_card_view"
+                                    android:text="Обрати викладача"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <com.paulrybitskyi.valuepicker.ValuePickerView
+                                    android:id="@+id/groupPicker"
+                                    style="@style/GroupPicker"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    app:layout_constraintBottom_toTopOf="@+id/segmentedControl"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button" />
+
+                                <info.hoang8f.android.segmented.SegmentedGroup
+                                    android:id="@+id/segmentedControl"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="10dp"
+                                    android:orientation="horizontal"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:sc_border_width="2dp"
+                                    app:sc_corner_radius="10dp">
+
+                                    <RadioButton
+                                        android:id="@+id/account_first_subgroup"
+                                        style="@style/segmentControlButton"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Перша підгрупа" />
+
+                                    <RadioButton
+                                        android:id="@+id/account_second_subgroup"
+                                        style="@style/RadioButton"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Друга підгрупа" />
+                                </info.hoang8f.android.segmented.SegmentedGroup>
+
+                                <ProgressBar
+                                    android:id="@+id/account_group_progress"
+                                    style="?android:attr/progressBarStyle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button" />
+
+                                <View
+                                    android:id="@+id/shadow_view"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    android:background="@drawable/bottom_shadow"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.0"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/account_changeUserType_button"
+                                    app:layout_constraintVertical_bias="0.0" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="16dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:cardCornerRadius="15dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+
+                                <EditText
+                                    android:id="@+id/uidTextField"
+                                    android:layout_width="332dp"
+                                    android:layout_height="53dp"
+                                    android:ems="10"
+                                    android:inputType="textPersonName"
+                                    android:text=""
+                                    android:textAlignment="center"
+                                    android:textSize="20sp"
+                                    android:visibility="invisible"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/userImage" />
+
+                                <Button
+                                    android:id="@+id/showUIDbutton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    android:background="@drawable/button_card_view"
+                                    android:text="Показати унікальний ідентифікатор"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintHorizontal_bias="0.498"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintVertical_bias="0.4" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="16dp"
+                            app:cardBackgroundColor="#FFFFFF"
+                            app:cardCornerRadius="15dp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
 
-                </LinearLayout>
-            </ScrollView>
+                            <Button
+                                android:id="@+id/logOutButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="2dp"
+                                android:background="@drawable/log_out_button"
+                                android:text="@string/exit_text"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
 
-        </LinearLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+                </ScrollView>
+
+            </LinearLayout>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

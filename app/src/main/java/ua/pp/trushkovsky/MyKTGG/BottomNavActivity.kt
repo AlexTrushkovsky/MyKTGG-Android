@@ -1,13 +1,11 @@
 package ua.pp.trushkovsky.MyKTGG
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.Window
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import androidx.appcompat.app.AppCompatActivity
@@ -109,7 +107,7 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
                         }
                         return
                     }
-                    val map = snapshot.value as Map<String, Any>
+                    val map = snapshot.value as Map<*, *>
                     val group = map["group"]
                     val isStudent = map["isStudent"]
                     if (group == null || isStudent == null) {
@@ -125,11 +123,9 @@ class BottomNavActivity : AppCompatActivity(), Navigator.NavigatorListener {
     fun hasOpenedDialogs(activity: FragmentActivity): Boolean {
         val fragments: List<Fragment> =
             activity.supportFragmentManager.fragments
-        if (fragments != null) {
-            for (fragment in fragments) {
-                if (fragment is DialogFragment) {
-                    return true
-                }
+        for (fragment in fragments) {
+            if (fragment is DialogFragment) {
+                return true
             }
         }
         return false

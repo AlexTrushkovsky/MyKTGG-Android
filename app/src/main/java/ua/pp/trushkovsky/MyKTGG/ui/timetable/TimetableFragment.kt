@@ -229,13 +229,17 @@ class TimetableFragment: Fragment(), CoroutineScope by MainScope() {
                     timetableSwipeRefresh?.isRefreshing = false
                 } catch (e: JsonSyntaxException) {
                     activity?.runOnUiThread {
-                        showDialogWith("Виникла помилка", e.localizedMessage, context, timetableSwipeRefresh)
+                        if (e.localizedMessage.contains("BEGIN_OBJECT", ignoreCase = true)) {
+                            showDialogWith("Не знайдено групи", "Спробуйте заново обрати групу в налаштуваннях", context, timetableSwipeRefresh)
+                        } else {
+                            showDialogWith("Виникла помилка", e.localizedMessage, context, timetableSwipeRefresh)
+                        }
                     }
                 }
             }
         } else {
             activity?.runOnUiThread {
-                showDialogWith("Відсутнє з'єдняння з мережею", "$e, пeперевірте з'єднання, або спробуйте будь ласка пізніше", context, timetableSwipeRefresh)
+                showDialogWith("Відсутнє з'єднання з мережею", "$e, пeперевірте з'єднання, або спробуйте будь ласка пізніше", context, timetableSwipeRefresh)
             }
             timetableSwipeRefresh?.isRefreshing = false
         }
@@ -247,28 +251,28 @@ class TimetableFragment: Fragment(), CoroutineScope by MainScope() {
     }
 
     private fun dayOfWeekToString(dayOfWeek: Int): String {
-        when(dayOfWeek) {
-            1 -> return "Понеділок"
-            2 -> return "Вівторок"
-            3 -> return "Середа"
-            4 -> return "Четвер"
-            5 -> return "П'ятниця"
-            6 -> return "Субота"
-            0 -> return "Неділя"
-            else -> return ""
+        return when(dayOfWeek) {
+            1 -> "Понеділок"
+            2 -> "Вівторок"
+            3 -> "Середа"
+            4 -> "Четвер"
+            5 -> "П'ятниця"
+            6 -> "Субота"
+            0 -> "Неділя"
+            else -> ""
         }
     }
 
     private fun dayOfWeekTo2LettersCapitalized(dayOfWeek: Int): String {
-        when(dayOfWeek) {
-            1 -> return "ПН"
-            2 -> return "ВТ"
-            3 -> return "СР"
-            4 -> return "ЧТ"
-            5 -> return "ПТ"
-            6 -> return "СБ"
-            0 -> return "НД"
-            else -> return ""
+        return when(dayOfWeek) {
+            1 -> "ПН"
+            2 -> "ВТ"
+            3 -> "СР"
+            4 -> "ЧТ"
+            5 -> "ПТ"
+            6 -> "СБ"
+            0 -> "НД"
+            else -> ""
         }
     }
 

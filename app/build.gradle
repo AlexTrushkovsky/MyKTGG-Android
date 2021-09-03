@@ -2,8 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/Users/aleksejtruskovskij/Desktop/myktggKeystore.jks')
+            storePassword 'Alextr2014'
+            keyAlias 'MyKtggKey'
+            keyPassword 'Alextr2014'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -11,8 +21,8 @@ android {
         applicationId "ua.pp.trushkovsky.MyKTGG"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 3
-        versionName '1.0.2'
+        versionCode 1
+        versionName '1.1.0'
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -22,6 +32,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable false
         }
     }
     compileOptions {
@@ -47,7 +59,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
     implementation 'androidx.preference:preference:1.1.0'
-    implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
     //Test
@@ -61,12 +72,15 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-messaging-directboot'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-database-ktx'
 
     implementation 'com.google.android.gms:play-services-auth:18.1.0'
     implementation 'com.facebook.android:facebook-login:[5,6)'
 
+    //OneSignal
+    implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
 
     //Android
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
