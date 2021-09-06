@@ -233,7 +233,7 @@ class SettingsFragment : Fragment() {
             context?.let { it1 -> ContextCompat.startActivity(it1, intent, null) }
         }
         mark_googleplay_button.setOnClickListener {
-            val uri = Uri.parse("market://details?id=myktgg")
+            val uri = Uri.parse("market://details?id=ua.pp.trushkovsky.MyKTGG")
             val myAppLinkToMarket = Intent(Intent.ACTION_VIEW, uri)
             try {
                 startActivity(myAppLinkToMarket)

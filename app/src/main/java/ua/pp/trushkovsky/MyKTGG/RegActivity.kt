@@ -8,17 +8,14 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
@@ -565,11 +562,12 @@ class RegActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private fun getImageUri(inContext: Activity, inImage: Bitmap): Uri? {
         val bytes = ByteArrayOutputStream()
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path: String = MediaStore.Images.Media.insertImage(
+
+        val path = MediaStore.Images.Media.insertImage(
             inContext.contentResolver,
             inImage,
             "Avatar",
-            null
+            "Avatar"
         )
         return Uri.parse(path)
     }

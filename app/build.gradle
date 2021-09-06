@@ -7,10 +7,16 @@ apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
 android {
     signingConfigs {
-        release {
-            storeFile file('/Users/aleksejtruskovskij/Desktop/myktggKeystore.jks')
+        debug {
+            storeFile file('/Users/aleksejtruskovskij/Desktop/MyKTGGKeystore')
             storePassword 'Alextr2014'
-            keyAlias 'MyKtggKey'
+            keyAlias 'upload'
+            keyPassword 'Alextr2014'
+        }
+        release {
+            storeFile file('/Users/aleksejtruskovskij/Desktop/MyKTGGKeystore')
+            storePassword 'Alextr2014'
+            keyAlias 'upload'
             keyPassword 'Alextr2014'
         }
     }
@@ -21,8 +27,8 @@ android {
         applicationId "ua.pp.trushkovsky.MyKTGG"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName '1.1.0'
+        versionCode 5
+        versionName '1.4'
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

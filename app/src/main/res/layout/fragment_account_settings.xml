@@ -136,7 +136,7 @@
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toBottomOf="@+id/userImage" />
+                                    app:layout_constraintTop_toBottomOf="@+id/accountUserImage" />
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
                         </androidx.cardview.widget.CardView>
@@ -258,7 +258,8 @@
                                     app:layout_constraintBottom_toBottomOf="parent"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toBottomOf="@+id/userImage" />
+                                    app:layout_constraintTop_toBottomOf="@+id/accountUserImage"
+                                    tools:ignore="NotSibling" />
 
                                 <Button
                                     android:id="@+id/showUIDbutton"
