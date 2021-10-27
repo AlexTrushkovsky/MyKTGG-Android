@@ -33,26 +33,14 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/main_appicon" />
 
-        <ImageButton
-            android:id="@+id/main_chat_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/rounded_button"
-            android:scaleType="fitCenter"
-            app:layout_constraintEnd_toEndOf="@+id/main_goto_ktgg_button"
-            app:layout_constraintStart_toStartOf="@+id/main_goto_ktgg_button"
-            app:layout_constraintTop_toBottomOf="@+id/main_goto_ktgg_button"
-            app:srcCompat="@drawable/main_chat_icon" />
-
         <View
             android:id="@+id/weather_field"
             android:layout_width="85dp"
             android:layout_height="85dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/rounded_button"
-            app:layout_constraintStart_toStartOf="@+id/main_chat_button"
-            app:layout_constraintTop_toBottomOf="@+id/main_chat_button" />
+            app:layout_constraintStart_toStartOf="@+id/main_goto_ktgg_button"
+            app:layout_constraintTop_toBottomOf="@+id/main_goto_ktgg_button" />
 
         <ImageView
             android:id="@+id/weather_icon"

@@ -78,9 +78,9 @@ class HomeFragment : Fragment() {
                 ContextCompat.startActivity(it1, intent, null)
             }
         }
-        main_chat_button.setOnClickListener {
-            showDialogWith("Працюємо", "Наразі чат в розробці, очікуйте в наступних версіях", context, null)
-        }
+//        main_chat_button.setOnClickListener {
+//            showDialogWith("Працюємо", "Наразі чат в розробці, очікуйте в наступних версіях", context, null)
+//        }
 
         val behavior = BottomSheetBehaviorGoogleMapsLike.from(bottom_sheet)
         behavior.isCollapsible = false

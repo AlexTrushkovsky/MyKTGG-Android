@@ -229,7 +229,7 @@ class SettingsFragment : Fragment() {
         }
         donate_button.setOnClickListener {
             val intent = Intent(Intent(Intent.ACTION_VIEW))
-            intent.data = Uri.parse("https://t.me/esen1n25")
+            intent.data = Uri.parse("https://send.monobank.ua/8vhG21ndYm")
             context?.let { it1 -> ContextCompat.startActivity(it1, intent, null) }
         }
         mark_googleplay_button.setOnClickListener {
